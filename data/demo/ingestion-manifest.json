@@ -1,0 +1,274 @@
+{
+  "config": {
+    "mode": "smoke",
+    "per_month": 200,
+    "page_size": 100,
+    "scope": "created_date >= '2025-01-01T00:00:00' AND created_date < '2026-01-01T00:00:00' AND borough in ('MANHATTAN','BROOKLYN','QUEENS','BRONX','STATEN ISLAND')",
+    "order": "created_date ASC, unique_key ASC"
+  },
+  "dataset_id": "erm2-nwe9",
+  "source_url": "https://data.cityofnewyork.us/d/erm2-nwe9",
+  "endpoint": "https://data.cityofnewyork.us/resource/erm2-nwe9.json",
+  "started_at": "2026-11-11T11:42:54.693956+00:00",
+  "complete": true,
+  "pages": [
+    {
+      "file": "page-000000.jsonl",
+      "month": 1,
+      "rows": 100,
+      "last_key": "63581616",
+      "last_created": "2025-01-01T00:08:24.000",
+      "sha256": "a5fd5f044abd6a13de17fadb86d95e68ba6946edacbca6ed6066a125b10f178b",
+      "retrieved_at": "2026-11-11T11:42:55.042091+00:00"
+    },
+    {
+      "file": "page-000001.jsonl",
+      "month": 1,
+      "rows": 100,
+      "last_key": "63576523",
+      "last_created": "2025-01-01T00:14:23.000",
+      "sha256": "7517779cb734cd6797c74a37901aee06642f54c3ae66100c9334c36c7878a6bd",
+      "retrieved_at": "2026-11-11T11:42:55.431805+00:00"
+    },
+    {
+      "file": "page-000002.jsonl",
+      "month": 2,
+      "rows": 100,
+      "last_key": "63941480",
+      "last_created": "2025-02-01T00:14:09.000",
+      "sha256": "4943a3fe2ed86789cb5461829b380af706c15921954d7fb72c4b97e577309dc0",
+      "retrieved_at": "2026-11-11T11:42:55.754633+00:00"
+    },
+    {
+      "file": "page-000003.jsonl",
+      "month": 2,
+      "rows": 100,
+      "last_key": "63947431",
+      "last_created": "2025-02-01T00:30:50.000",
+      "sha256": "eb37c2704d2893a81d905b043bbadb9177c02de653450ac33b163bf06527595f",
+      "retrieved_at": "2026-11-11T11:42:56.067340+00:00"
+    },
+    {
+      "file": "page-000004.jsonl",
+      "month": 3,
+      "rows": 100,
+      "last_key": "64221339",
+      "last_created": "2025-03-01T00:12:43.000",
+      "sha256": "0fcd713e5b8d0bbbd4f40e5f8847ff4ae9d499b7619494f389bcd0bbfcdec1e8",
+      "retrieved_at": "2026-11-11T11:42:56.585054+00:00"
+    },
+    {
+      "file": "page-000005.jsonl",
+      "month": 3,
+      "rows": 100,
+      "last_key": "64222471",
+      "last_created": "2025-03-01T00:28:46.000",
+      "sha256": "9d41f86c87d306b81528ec4a02573774a289aab5c922ed62a42b6be713d8afe3",
+      "retrieved_at": "2026-11-11T11:42:57.111232+00:00"
+    },
+    {
+      "file": "page-000006.jsonl",
+      "month": 4,
+      "rows": 100,
+      "last_key": "64518133",
+      "last_created": "2025-04-01T00:35:18.000",
+      "sha256": "6918fd3b523244390e17294d1c26a3b62a532e93a609e141f574d0097c057004",
+      "retrieved_at": "2026-11-11T11:42:57.531706+00:00"
+    },
+    {
+      "file": "page-000007.jsonl",
+      "month": 4,
+      "rows": 100,
+      "last_key": "64514586",
+      "last_created": "2025-04-01T00:58:42.000",
+      "sha256": "9a651f9eab51c54cb7c45e32a189f5bc8ec1f242f0a7d31fe6acf407bb6cf395",
+      "retrieved_at": "2026-11-11T11:42:57.911724+00:00"
+    },
+    {
+      "file": "page-000008.jsonl",
+      "month": 5,
+      "rows": 100,
+      "last_key": "64805170",
+      "last_created": "2025-05-01T00:17:02.000",
+      "sha256": "d38339752e44aab1d0aca62d060af058b36c36a71876fd11f7b1557da866deb1",
+      "retrieved_at": "2026-11-11T11:42:58.311239+00:00"
+    },
+    {
+      "file": "page-000009.jsonl",
+      "month": 5,
+      "rows": 100,
+      "last_key": "64803856",
+      "last_created": "2025-05-01T00:34:13.000",
+      "sha256": "e5c0943d1398dcfdeac41edeb70752043db629a4a88ac4b3b14643b310131145",
+      "retrieved_at": "2026-11-11T11:42:58.613826+00:00"
+    },
+    {
+      "file": "page-000010.jsonl",
+      "month": 6,
+      "rows": 100,
+      "last_key": "65122656",
+      "last_created": "2025-06-01T00:08:28.000",
+      "sha256": "ba9853267f401bc6776ba843c131b1a39a69740b269c382366fb23d1925c903c",
+      "retrieved_at": "2026-11-11T11:42:59.140760+00:00"
+    },
+    {
+      "file": "page-000011.jsonl",
+      "month": 6,
+      "rows": 100,
+      "last_key": "65121215",
+      "last_created": "2025-06-01T00:19:17.000",
+      "sha256": "a396f0c518b0b2edeaa1d32882057d7fb542a04e24bbc7a4c18de44e40acfd61",
+      "retrieved_at": "2026-11-11T11:42:59.506843+00:00"
+    },
+    {
+      "file": "page-000012.jsonl",
+      "month": 7,
+      "rows": 100,
+      "last_key": "65429723",
+      "last_created": "2025-07-01T00:17:06.000",
+      "sha256": "fe5ed3ea2b9ac6eff2d531c3714689f890e114311c1ce19b3a8ac0babc625f5f",
+      "retrieved_at": "2026-11-11T11:42:59.902294+00:00"
+    },
+    {
+      "file": "page-000013.jsonl",
+      "month": 7,
+      "rows": 100,
+      "last_key": "65431885",
+      "last_created": "2025-07-01T00:34:18.000",
+      "sha256": "28a7965de6fc77a15d350b18b19adce19a0250bba120aa788f81799912af4940",
+      "retrieved_at": "2026-11-11T11:43:00.192678+00:00"
+    },
+    {
+      "file": "page-000014.jsonl",
+      "month": 8,
+      "rows": 100,
+      "last_key": "65715978",
+      "last_created": "2025-08-01T00:25:51.000",
+      "sha256": "b1b53f1c2b0a53b0442c0b0878ce48c0f6e78147a6284cff8ac29036806c36f2",
+      "retrieved_at": "2026-11-11T11:43:00.707784+00:00"
+    },
+    {
+      "file": "page-000015.jsonl",
+      "month": 8,
+      "rows": 100,
+      "last_key": "65720535",
+      "last_created": "2025-08-01T00:49:25.000",
+      "sha256": "385cb4f8d4830b0c97df6690a6bff62b5d91c4f6f1ba79e4c59731b9a298db85",
+      "retrieved_at": "2026-11-11T11:43:01.077569+00:00"
+    },
+    {
+      "file": "page-000016.jsonl",
+      "month": 9,
+      "rows": 100,
+      "last_key": "66007247",
+      "last_created": "2025-09-01T00:08:29.000",
+      "sha256": "980022dcda21d5515a5489c0e32d4bdd7700e8e8e19ebe6e56642de5bc64d821",
+      "retrieved_at": "2026-11-11T11:43:01.386794+00:00"
+    },
+    {
+      "file": "page-000017.jsonl",
+      "month": 9,
+      "rows": 100,
+      "last_key": "66006354",
+      "last_created": "2025-09-01T00:18:40.000",
+      "sha256": "2d322bb7a7fcb611269c5f2fe5d1deb368cf5c7ae840bab54791f07c233c5a5e",
+      "retrieved_at": "2026-11-11T11:43:02.475015+00:00"
+    },
+    {
+      "file": "page-000018.jsonl",
+      "month": 10,
+      "rows": 100,
+      "last_key": "66329358",
+      "last_created": "2025-10-01T00:18:44.000",
+      "sha256": "ff943d76d687e2fc86c504feeb5d3863e0b300c41c6859fc7f8ab24c72e6e981",
+      "retrieved_at": "2026-11-11T11:43:02.790292+00:00"
+    },
+    {
+      "file": "page-000019.jsonl",
+      "month": 10,
+      "rows": 100,
+      "last_key": "66328750",
+      "last_created": "2025-10-01T00:39:20.000",
+      "sha256": "bf3cdb3180b29a9b1184d53541561e08ab96de1798f6c3a7004d20af3267162e",
+      "retrieved_at": "2026-11-11T11:43:03.182528+00:00"
+    },
+    {
+      "file": "page-000020.jsonl",
+      "month": 11,
+      "rows": 100,
+      "last_key": "66684321",
+      "last_created": "2025-11-01T00:09:37.000",
+      "sha256": "e75e4a7dfc4a0838714b939b6dd823f9f134e25ea308323a545197f804f1c440",
+      "retrieved_at": "2026-11-11T11:43:03.705014+00:00"
+    },
+    {
+      "file": "page-000021.jsonl",
+      "month": 11,
+      "rows": 100,
+      "last_key": "66678897",
+      "last_created": "2025-11-01T00:19:11.000",
+      "sha256": "9adc3cc44e0bc370301687edf197a525b04d01012b4fbfa2956c3d6b95ed2ac5",
+      "retrieved_at": "2026-11-11T11:43:04.245608+00:00"
+    },
+    {
+      "file": "page-000022.jsonl",
+      "month": 12,
+      "rows": 100,
+      "last_key": "67002138",
+      "last_created": "2025-12-01T00:17:01.000",
+      "sha256": "503625666eaba879e5084c0fa991659529d493d7b725ddc9348b4173df79be03",
+      "retrieved_at": "2026-11-11T11:43:04.680472+00:00"
+    },
+    {
+      "file": "page-000023.jsonl",
+      "month": 12,
+      "rows": 100,
+      "last_key": "67000890",
+      "last_created": "2025-12-01T00:33:53.000",
+      "sha256": "1238947d84c7638870dd5e945e97790bd89d21e87eaf0ef869a586d29d9c307b",
+      "retrieved_at": "2026-11-11T11:43:05.065725+00:00"
+    }
+  ],
+  "done_months": [
+    1,
+    2,
+    3,
+    4,
+    5,
+    6,
+    7,
+    8,
+    9,
+    10,
+    11,
+    12
+  ],
+  "fields": [
+    "unique_key",
+    "created_date",
+    "closed_date",
+    "status",
+    "complaint_type",
+    "descriptor",
+    "agency",
+    "agency_name",
+    "borough",
+    "community_board",
+    "incident_zip",
+    "latitude",
+    "longitude",
+    "open_data_channel_type",
+    "location_type",
+    "resolution_description",
+    "resolution_action_updated_date"
+  ],
+  "missing_auxiliary_fields": [],
+  "sampling": "earliest creation times per month; lexical key tie-break",
+  "audit": {
+    "downloaded_rows": 2400,
+    "unique_keys": 2400,
+    "duplicate_keys": 0,
+    "missing_keys": 0
+  },
+  "finished_at": "2026-11-11T11:43:05.089075+00:00"
+}

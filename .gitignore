@@ -14,8 +14,8 @@ venv/
 .streamlit/secrets.toml
 
 # Local data
-data/raw/
-data/processed/
+data/raw/*
+data/processed/*
 data/tmp/
 
 # Editor / OS
@@ -26,3 +26,11 @@ Thumbs.db
 
 # Notebook checkpoints
 .ipynb_checkpoints/
+
+# Pipeline artifacts
+!data/raw/.gitkeep
+!data/processed/.gitkeep
+*.part
+*.sqlite*
+.coverage
+htmlcov/

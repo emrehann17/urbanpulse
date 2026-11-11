@@ -1,0 +1,7 @@
+-c constraints.txt
+pandas==2.2.3
+pyarrow==19.0.1
+requests==2.32.3
+streamlit==1.45.1
+plotly==6.1.2
+tzdata==2025.2

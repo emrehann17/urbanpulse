@@ -1,0 +1,110 @@
+"""Phase 1 integration: shared filters, quality indicators, and a record preview."""
+
+from datetime import date
+
+import pandas as pd
+import streamlit as st
+
+from pipeline import apply_filters, get_data_summary, get_filter_options, load_data
+from pipeline.loader import data_path
+
+
+@st.cache_data(show_spinner="Loading the shared dataset…")
+def cached_data(dataset: str, modified_ns: int, file_size: int) -> pd.DataFrame:
+    """Invalidate cached data when the local artifact changes."""
+    return load_data(dataset=dataset)
+
+
+def main() -> None:
+    """Render a minimal integration app without making any network requests."""
+    st.set_page_config(page_title="UrbanPulse — Phase 1", layout="wide")
+    st.title("UrbanPulse — Where Do Public Service Requests Wait?")
+    st.caption("Phase 1: shared data and filtering diagnostics · CEN445")
+    dataset = st.sidebar.selectbox("Dataset", ["demo", "smoke", "full"], key="dataset")
+    try:
+        path = data_path(dataset)
+        stat = path.stat()
+        df = cached_data(dataset, stat.st_mtime_ns, stat.st_size)
+    except (OSError, ValueError) as exc:
+        st.error(f"The selected dataset could not be loaded. {exc}")
+        st.code("python -m pipeline --help")
+        return
+    provenance = df.attrs["urbanpulse"]
+    if provenance["mode"] != "full":
+        st.warning(
+            "SAMPLE: selected records from each month of 2025. Counts and rates describe "
+            "this sample only; they do not estimate the full NYC population."
+        )
+    else:
+        st.info(
+            "Full-scope extraction of 2025 requests in five boroughs; live-source changes "
+            "can affect snapshot completeness. Review the quality report."
+        )
+    st.caption(
+        f"Observation cutoff: {provenance['extraction_cutoff']} · "
+        f"Schema {provenance['schema_version']}"
+    )
+    options = get_filter_options(df)
+    selections = {}
+    for field, label in (
+        ("borough", "Borough"),
+        ("complaint_type", "Complaint type"),
+        ("agency", "Agency"),
+    ):
+        selections[field] = st.sidebar.multiselect(
+            label,
+            ["All", *options[field]],
+            default=["All"],
+            key=f"{dataset}_{field}",
+            help="All disables this filter. Clear every selection to show no records.",
+        )
+    start = end = None
+    if options["start_date"]:
+        dates = st.sidebar.date_input(
+            "Created date range",
+            value=(
+                date.fromisoformat(options["start_date"]),
+                date.fromisoformat(options["end_date"]),
+            ),
+            key=f"{dataset}_dates",
+        )
+        if len(dates) != 2:
+            st.info("Choose both a start and end date.")
+            return
+        start, end = dates
+    filtered = apply_filters(df, **selections, start_date=start, end_date=end)
+    summary = get_data_summary(filtered)
+    left, middle, right = st.columns(3)
+    left.metric("Filtered requests", f"{summary['rows']:,}", help=f"Loaded records: {len(df):,}")
+    middle.metric("Valid closure observations", f"{summary['valid_closures']:,}")
+    right.metric("Matched district / JIA", f"{summary['geographic_matches']:,}")
+    if filtered.empty:
+        st.info("No records match these filters. Adjust the sidebar selections.")
+        return
+    st.subheader("Shared-data quality indicators")
+    st.json(summary)
+    st.subheader("Filtered record preview")
+    st.dataframe(
+        filtered[
+            [
+                "unique_key",
+                "created_date",
+                "borough",
+                "complaint_type",
+                "agency",
+                "duration_bucket",
+                "closure_hours",
+                "boro_cd",
+            ]
+        ].head(200),
+        hide_index=True,
+        use_container_width=True,
+    )
+    st.caption(
+        "Preview limited to 200 rows. All indicators use the same complete filtered data. "
+        "These diagnostics are not part of the nine final visualizations."
+    )
+
+
+if __name__ == "__main__":
+    main()

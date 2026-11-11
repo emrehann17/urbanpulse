@@ -1,16 +1,197 @@
-# UrbanPulse
+# UrbanPulse — Where Do Public Service Requests Wait?
 
-An Interactive Exploration of NYC 311 Public Service Requests
+**An Interactive Exploration of Urban Service Demand, Closure Times, and Neighborhood Patterns.**
 
-## Project
+CEN445 — Introduction to Data Visualization. Three students will each develop
+three visualizations. Submission deadline: **November 15, 2026, 23:59**.
 
-CEN445 Introduction to Data Visualization
+UrbanPulse asks: Which service requests take longest to close? How do service
+profiles differ across boroughs and community districts? How much apparent delay
+reflects still-open requests, request mix, or incomplete records?
 
-## Data Source
+**Current phase: Phase 1 shared data pipeline and integration.** The repository
+provides ingestion, cleaning, closure/censoring features, geographic joins,
+Parquet contracts, universal filters, quality reporting, tests, and a small
+Streamlit app. Final charts and model training are not implemented. The final
+course project still needs nine distinct visualizations (at least six advanced),
+meaningful interactions, two ML algorithms as the implementation goal, a one-page
+English report, and an English presentation. Diagnostics do not count as final charts.
 
-NYC 311 Service Requests (2020 to Present)
-https://data.cityofnewyork.us/d/erm2-nwe9
+## Data and scope
 
-## Status
+- [NYC 311 Service Requests from 2020 to Present, erm2-nwe9](https://data.cityofnewyork.us/d/erm2-nwe9)
+- [NYC Community Districts, 5crt-au7u](https://data.cityofnewyork.us/d/5crt-au7u)
 
-Data pipeline implementation in progress.
+Requests created from January 1, 2025 inclusive to January 1, 2026 exclusive,
+restricted to Manhattan, Brooklyn, Queens, Bronx, and Staten Island. The pipeline
+retrieves 15 primary fields and two auxiliary audit fields. The cleaned contract
+has 52 columns. Source schema and December 2025 dataset changes are verified and
+explained in [SOURCES.md](docs/SOURCES.md).
+
+`data/demo/requests.parquet` is a **real, bounded sample**, selected by the earliest
+200 creation timestamps in each calendar month (lexical ID tie-break). It is not representative in a
+statistical sense. Counts and rates describe only selected records. Full 2025
+extraction has not been run. Measured counts and exclusions are in
+[DATA_QUALITY.md](docs/DATA_QUALITY.md) and the adjacent machine-readable quality
+report. The app defaults explicitly to the demo; it never substitutes it for full data.
+
+## Requirements and installation
+
+Use **64-bit Python 3.12**, Git, and a local virtual environment. Internet is
+needed for installation and fresh downloads; the included demo runs offline.
+No API token, GeoPandas, GDAL, database server, or WSL installation is required.
+Direct versions and resolved dependency constraints are committed. See
+[TEAM_GUIDE.md](docs/TEAM_GUIDE.md) for complete Windows, WSL/Linux, and macOS setup.
+
+```bash
+git clone https://github.com/emrehann17/urbanpulse.git
+cd urbanpulse
+python3.12 -m venv .venv
+source .venv/bin/activate
+python -m pip install -r requirements-dev.txt
+```
+
+Windows PowerShell:
+
+```powershell
+git clone https://github.com/emrehann17/urbanpulse.git
+cd urbanpulse
+py -3.12 -m venv .venv
+.\.venv\Scripts\Activate.ps1
+python -m pip install -r requirements-dev.txt
+```
+
+If activation is restricted, call `.\.venv\Scripts\python.exe` directly. Runtime
+only installation can use `requirements.txt`. `.env.example` documents optional
+settings; `.env` is **not** automatically loaded. Export `SOCRATA_APP_TOKEN` to
+raise API quotas if desired; basic public access works without it.
+
+## Run the demo
+
+```text
+python -m streamlit run app.py
+```
+
+Choose a dataset, then use borough, complaint type, agency, and created-date
+filters. Counts, quality indicators, and the record preview consume the exact
+same filtered DataFrame. The record preview is limited to 200 rows; summary
+metrics use all matching rows. Missing files and empty results have explicit messages.
+
+## Ingest, preprocess, and validate
+
+Run from the repository root. The module help lists every supported option.
+
+```text
+python -m pipeline --help
+python -m pipeline ingest --mode smoke --per-month 200 --page-size 100
+python -m pipeline geography
+python -m pipeline build --run-dir data/raw/smoke --output data/processed/smoke.parquet --geography data/geographic/community_districts.geojson
+python -m pipeline quality --input data/processed/smoke.parquet
+```
+
+For full ingestion, explicitly use:
+
+```text
+python -m pipeline ingest --mode full --page-size 5000
+python -m pipeline build --run-dir data/raw/full --output data/processed/requests.parquet --geography data/geographic/community_districts.geojson
+python -m pipeline quality --input data/processed/requests.parquet
+```
+
+Full extraction can take substantial time and disk space. Ingestion and processing
+are bounded by page size; loading the full DataFrame needs enough RAM. Resume an
+interrupted download by repeating identical arguments. To refresh or change
+sampling settings, use a new `--run-dir`. Never run concurrent writers on the same
+run/output paths. See [PIPELINE.md](docs/PIPELINE.md) for recovery and artifact details.
+
+## Shared API
+
+```python
+from pipeline import load_data, apply_filters, get_filter_options, get_data_summary
+
+df = load_data(dataset="demo")  # explicitly choose "full" after a full build
+options = get_filter_options(df)
+filtered_df = apply_filters(
+    df, borough=["Brooklyn", "Queens"], agency="All",
+    start_date="2025-01-01", end_date="2025-12-31",
+)
+summary = get_data_summary(filtered_df)
+```
+
+No Streamlit dependency is required by these functions. Missing values use
+`pd.NA`/`NaT`, not invented zeros. All student visualization modules receive
+`filtered_df` and return a Plotly figure without modifying the data. See the
+[team integration examples](docs/TEAM_GUIDE.md).
+
+## Tests and style
+
+```text
+python -m pytest -q
+python -m ruff check .
+python -m ruff format --check .
+python -m pip check
+```
+
+Tests use labelled synthetic fixtures and mocked API responses. They do not rely
+on live NYC availability. GitHub Actions is configured for Ubuntu and Windows,
+Python 3.12. Local executed checks and platform limitations are recorded in
+[PROJECT_STATUS.md](docs/PROJECT_STATUS.md); configured CI is not a claim that
+remote workflows have run.
+
+## Repository structure
+
+```text
+urbanpulse/
+├── app.py
+├── requirements.txt / requirements-dev.txt / constraints.txt
+├── pyproject.toml / .env.example / .gitignore / .gitattributes
+├── config/                 # repository-anchored paths and source constants
+├── pipeline/
+│   ├── __init__.py / __main__.py
+│   ├── ingest.py / preprocess.py / features.py / build.py
+│   ├── contract.py / loader.py / filters.py / quality.py / geography.py
+├── data/
+│   ├── raw/                # ignored original JSONL pages and run checkpoints
+│   ├── processed/          # ignored full/smoke Parquet artifacts
+│   ├── demo/               # small real sample + provenance + measured quality
+│   ├── geographic/         # validated GeoJSON + retrieval metadata
+│   └── metadata/           # source schema snapshots
+├── visualizations/         # integration instructions; final charts pending
+├── ml/                     # design reference; trained models pending
+├── tests/                  # deterministic offline tests and app integration
+├── docs/                   # data dictionary, pipeline, quality, team and ML guides
+└── .github/workflows/ci.yml
+```
+
+## Team workflow and reproducibility
+
+Create one feature branch per visualization, keep changes within your assigned
+module, run tests/lint, and request a pull request review before integration.
+Agree on schema changes with all three students. Do not duplicate ingestion,
+preprocessing, or global filters. Do not commit credentials, virtual environments,
+or full datasets. The included demo and metadata are intended for Git distribution.
+
+Original raw pages remain locally for audits; another teammate or grader can
+retrieve the exact scope with the commands above. Selection is reproducible, but
+live source edits mean freshly downloaded values need not be byte-identical.
+Use the included demo's checksum to identify the exact shared demonstration
+artifact. Record fresh manifests and quality reports when publishing new snapshots.
+
+## Known limitations and further documentation
+
+311 measures reported service requests, not all underlying service needs. Closure
+records are administrative outcomes, not proof of satisfactory resolution. Current
+statuses do not reveal reopening history. DST ambiguity, invalid timestamps,
+status/date conflicts, and immature censoring produce unknown outcomes. Current
+2026 district boundaries have not been reconciled against 2025 historical geometry.
+Coordinate checks are a conservative envelope, not spatial membership validation.
+The live API is not a transactionally consistent snapshot. The demo is not suitable
+for population inference or model training.
+
+- [Data dictionary and contract](docs/DATA_DICTIONARY.md)
+- [Pipeline architecture and reruns](docs/PIPELINE.md)
+- [Team guide and examples](docs/TEAM_GUIDE.md)
+- [Measured data quality](docs/DATA_QUALITY.md)
+- [Source verification](docs/SOURCES.md)
+- [Future ML design](docs/ML_DESIGN.md)
+- [Decisions and trade-offs](docs/DECISIONS.md)
+- [Project status and remaining work](docs/PROJECT_STATUS.md)

@@ -1,0 +1,11 @@
+{
+  "source_url": "https://data.cityofnewyork.us/d/5crt-au7u",
+  "endpoint": "https://data.cityofnewyork.us/resource/5crt-au7u.geojson",
+  "retrieved_at": "2026-11-11T11:27:57.247044+00:00",
+  "crs": "OGC:CRS84 (WGS84 longitude, latitude)",
+  "transformation": "none",
+  "features": 71,
+  "sha256": "b67789a0247801752d9f0f3048cc86119562962216f2f36d151c1fb810561b9f",
+  "source_rows_updated_at": 1793648400,
+  "source_description": "Community District boundaries for New York City.\n\nCommunity Districts (CD) are mandated by the city charter to review and monitor quality of life issues for New York City (NYC) neighborhoods.  NYC is currently comprised of 59 community districts. There are also 12 Joint Interest Areas (JIAs).  The JIAs are major parks and airports and are not contained within any community district.  The BoroCD value is the unique ID for CDs and JIAs with the first byte representing the borough code and the second and third bytes are the CD or JIA number.\n\nAll previously released versions of this data are available on the <a href=\"https://www.nyc.gov/content/planning/pages/resources/datasets/community-districts\">DCP Website: BYTES of the BIG APPLE</a>. Current version: 26c"
+}

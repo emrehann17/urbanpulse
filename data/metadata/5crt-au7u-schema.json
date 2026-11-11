@@ -1,0 +1,472 @@
+{
+  "id": "5crt-au7u",
+  "name": "Community Districts",
+  "assetType": "dataset",
+  "attribution": "Department of City Planning (DCP)",
+  "attributionLink": "https://www.nyc.gov/content/planning/pages/resources/datasets/community-districts",
+  "averageRating": 0,
+  "category": "City Government",
+  "createdAt": 1718646498,
+  "description": "Community District boundaries for New York City.\n\nCommunity Districts (CD) are mandated by the city charter to review and monitor quality of life issues for New York City (NYC) neighborhoods.  NYC is currently comprised of 59 community districts. There are also 12 Joint Interest Areas (JIAs).  The JIAs are major parks and airports and are not contained within any community district.  The BoroCD value is the unique ID for CDs and JIAs with the first byte representing the borough code and the second and third bytes are the CD or JIA number.\n\nAll previously released versions of this data are available on the <a href=\"https://www.nyc.gov/content/planning/pages/resources/datasets/community-districts\">DCP Website: BYTES of the BIG APPLE</a>. Current version: 26c",
+  "diciBackend": false,
+  "displayType": "table",
+  "downloadCount": 2669,
+  "hideFromCatalog": false,
+  "hideFromDataJson": false,
+  "locked": false,
+  "newBackend": true,
+  "numberOfComments": 0,
+  "oid": 41347418,
+  "provenance": "official",
+  "publicationAppendEnabled": false,
+  "publicationDate": 1748368523,
+  "publicationGroup": 19551125,
+  "publicationStage": "published",
+  "rowsUpdatedAt": 1793648400,
+  "rowsUpdatedBy": "iqqb-gm94",
+  "tableId": 19906888,
+  "totalTimesRated": 0,
+  "viewCount": 8245,
+  "viewLastModified": 1793648395,
+  "viewType": "tabular",
+  "approvals": [
+    {
+      "reviewedAt": 1749220614,
+      "reviewedAutomatically": false,
+      "state": "approved",
+      "submissionId": 6912253,
+      "submissionObject": "public_audience_request",
+      "submissionOutcome": "change_audience",
+      "submittedAt": 1749156883,
+      "targetAudience": "public",
+      "workflowId": 2285,
+      "reviewer": {
+        "id": "5fuc-pqz2",
+        "displayName": "NYC OpenData"
+      },
+      "submissionDetails": {
+        "permissionType": "read"
+      },
+      "submissionOutcomeApplication": {
+        "endedAt": 1749220614,
+        "failureCount": 0,
+        "startedAt": 1749220614,
+        "status": "success"
+      },
+      "submitter": {
+        "id": "iqqb-gm94",
+        "displayName": "DCP Open Data"
+      }
+    }
+  ],
+  "clientContext": {
+    "clientContextVariables": [],
+    "inheritedVariables": {}
+  },
+  "columns": [
+    {
+      "id": 610849170,
+      "name": "BoroCd",
+      "dataTypeName": "number",
+      "description": "Community district number preceded by BoroCode.",
+      "fieldName": "boro_cd",
+      "position": 1,
+      "renderTypeName": "number",
+      "tableColumnId": 153063419,
+      "cachedContents": {
+        "non_null": "71",
+        "largest": "595",
+        "null": "0",
+        "top": [
+          {
+            "item": "204",
+            "count": "1"
+          },
+          {
+            "item": "356",
+            "count": "1"
+          },
+          {
+            "item": "483",
+            "count": "1"
+          },
+          {
+            "item": "503",
+            "count": "1"
+          },
+          {
+            "item": "318",
+            "count": "1"
+          },
+          {
+            "item": "316",
+            "count": "1"
+          },
+          {
+            "item": "355",
+            "count": "1"
+          },
+          {
+            "item": "206",
+            "count": "1"
+          },
+          {
+            "item": "106",
+            "count": "1"
+          },
+          {
+            "item": "112",
+            "count": "1"
+          },
+          {
+            "item": "212",
+            "count": "1"
+          },
+          {
+            "item": "228",
+            "count": "1"
+          },
+          {
+            "item": "102",
+            "count": "1"
+          },
+          {
+            "item": "305",
+            "count": "1"
+          },
+          {
+            "item": "209",
+            "count": "1"
+          },
+          {
+            "item": "210",
+            "count": "1"
+          },
+          {
+            "item": "502",
+            "count": "1"
+          },
+          {
+            "item": "480",
+            "count": "1"
+          },
+          {
+            "item": "308",
+            "count": "1"
+          },
+          {
+            "item": "107",
+            "count": "1"
+          }
+        ],
+        "smallest": "101",
+        "count": "71",
+        "cardinality": "71"
+      },
+      "format": {}
+    },
+    {
+      "id": 610849172,
+      "name": "Shape_Length",
+      "dataTypeName": "number",
+      "description": "Length of feature in internal units.",
+      "fieldName": "shape_leng",
+      "position": 2,
+      "renderTypeName": "number",
+      "tableColumnId": 153063418,
+      "cachedContents": {
+        "non_null": "71",
+        "largest": "268203.570924",
+        "null": "0",
+        "top": [
+          {
+            "item": "31980.7645594",
+            "count": "1"
+          },
+          {
+            "item": "59541.7678647",
+            "count": "1"
+          },
+          {
+            "item": "37006.8325216",
+            "count": "1"
+          },
+          {
+            "item": "70108.4497367",
+            "count": "1"
+          },
+          {
+            "item": "35890.2517383",
+            "count": "1"
+          },
+          {
+            "item": "62242.0784359",
+            "count": "1"
+          },
+          {
+            "item": "47810.4841413",
+            "count": "1"
+          },
+          {
+            "item": "30507.5147197",
+            "count": "1"
+          },
+          {
+            "item": "82147.9333294",
+            "count": "1"
+          },
+          {
+            "item": "44800.8494298",
+            "count": "1"
+          },
+          {
+            "item": "35010.7817382",
+            "count": "1"
+          },
+          {
+            "item": "106865.598327",
+            "count": "1"
+          },
+          {
+            "item": "33341.37794",
+            "count": "1"
+          },
+          {
+            "item": "103435.424106",
+            "count": "1"
+          },
+          {
+            "item": "72490.0377408",
+            "count": "1"
+          },
+          {
+            "item": "84115.7965449",
+            "count": "1"
+          },
+          {
+            "item": "35288.334228",
+            "count": "1"
+          },
+          {
+            "item": "115425.633792",
+            "count": "1"
+          },
+          {
+            "item": "29444.3548581",
+            "count": "1"
+          },
+          {
+            "item": "31359.7613437",
+            "count": "1"
+          }
+        ],
+        "smallest": "23962.5206844",
+        "count": "71",
+        "cardinality": "71"
+      },
+      "format": {}
+    },
+    {
+      "id": 610849173,
+      "name": "Shape_Area",
+      "dataTypeName": "number",
+      "description": "Area of feature in internal units squared.",
+      "fieldName": "shape_area",
+      "position": 3,
+      "renderTypeName": "number",
+      "tableColumnId": 153063421,
+      "cachedContents": {
+        "non_null": "71",
+        "largest": "600343607.597",
+        "null": "0",
+        "top": [
+          {
+            "item": "79320072.9746",
+            "count": "1"
+          },
+          {
+            "item": "235661803.571",
+            "count": "1"
+          },
+          {
+            "item": "131695537.625",
+            "count": "1"
+          },
+          {
+            "item": "49309977.3336",
+            "count": "1"
+          },
+          {
+            "item": "45608392.302",
+            "count": "1"
+          },
+          {
+            "item": "56662992.587",
+            "count": "1"
+          },
+          {
+            "item": "26138866.5073",
+            "count": "1"
+          },
+          {
+            "item": "120185011.551",
+            "count": "1"
+          },
+          {
+            "item": "591513779.592",
+            "count": "1"
+          },
+          {
+            "item": "93819527.9066",
+            "count": "1"
+          },
+          {
+            "item": "51768935.2429",
+            "count": "1"
+          },
+          {
+            "item": "600343607.597",
+            "count": "1"
+          },
+          {
+            "item": "191997998.69",
+            "count": "1"
+          },
+          {
+            "item": "83474642.5269",
+            "count": "1"
+          },
+          {
+            "item": "140010108.893",
+            "count": "1"
+          },
+          {
+            "item": "24258137.0272",
+            "count": "1"
+          },
+          {
+            "item": "53307889.5242",
+            "count": "1"
+          },
+          {
+            "item": "43790040.2362",
+            "count": "1"
+          },
+          {
+            "item": "155487817.24",
+            "count": "1"
+          },
+          {
+            "item": "32776853.7491",
+            "count": "1"
+          }
+        ],
+        "smallest": "24258137.0272",
+        "count": "71",
+        "cardinality": "71"
+      },
+      "format": {}
+    },
+    {
+      "id": 610849171,
+      "name": "the_geom",
+      "dataTypeName": "multipolygon",
+      "fieldName": "the_geom",
+      "position": 4,
+      "renderTypeName": "multipolygon",
+      "tableColumnId": 153063420,
+      "format": {}
+    }
+  ],
+  "grants": [
+    {
+      "inherited": false,
+      "type": "viewer",
+      "flags": [
+        "public"
+      ]
+    }
+  ],
+  "metadata": {
+    "attachments": [
+      {
+        "filename": "nycd_metadata.pdf",
+        "assetId": "32663bce-f5f4-450d-bc9d-3bc31052bb53",
+        "name": "nycd_metadata.pdf"
+      },
+      {
+        "filename": "data_dictionary.xlsx",
+        "assetId": "e5f2eeec-dc8e-496d-b4d6-f7a1b333240c",
+        "name": "data_dictionary.xlsx"
+      }
+    ],
+    "custom_fields": {
+      "Update": {
+        "Automation": "Yes",
+        "Date Made Public": "2/23/2015",
+        "Update Frequency": "Quarterly",
+        "Data Change Frequency": "Quarterly"
+      },
+      "Dataset Information": {
+        "Agency": "Department of City Planning (DCP)"
+      }
+    },
+    "rowLabel": "Community district",
+    "availableDisplayTypes": [
+      "table",
+      "fatrow",
+      "page"
+    ]
+  },
+  "owner": {
+    "id": "iqqb-gm94",
+    "displayName": "DCP Open Data",
+    "profileImageUrlLarge": "/api/users/iqqb-gm94/profile_images/LARGE",
+    "profileImageUrlMedium": "/api/users/iqqb-gm94/profile_images/THUMB",
+    "profileImageUrlSmall": "/api/users/iqqb-gm94/profile_images/TINY",
+    "screenName": "DCP Open Data",
+    "type": "interactive",
+    "flags": [
+      "acceptedEula",
+      "mayBeStoriesCoOwner"
+    ]
+  },
+  "query": {},
+  "rights": [
+    "read"
+  ],
+  "tableAuthor": {
+    "id": "iqqb-gm94",
+    "displayName": "DCP Open Data",
+    "profileImageUrlLarge": "/api/users/iqqb-gm94/profile_images/LARGE",
+    "profileImageUrlMedium": "/api/users/iqqb-gm94/profile_images/THUMB",
+    "profileImageUrlSmall": "/api/users/iqqb-gm94/profile_images/TINY",
+    "screenName": "DCP Open Data",
+    "type": "interactive",
+    "flags": [
+      "acceptedEula",
+      "mayBeStoriesCoOwner"
+    ]
+  },
+  "tags": [
+    "community districts",
+    "cd",
+    "community board",
+    "cb",
+    "boundary",
+    "boundaries",
+    "districts",
+    "lion",
+    "cscl",
+    "department of city planning",
+    "dcp",
+    "new york city",
+    "nyc"
+  ],
+  "flags": [
+    "default",
+    "ownerMayBeContacted",
+    "restorable",
+    "restorePossibleForType"
+  ]
+}
