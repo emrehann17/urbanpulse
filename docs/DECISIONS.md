@@ -34,3 +34,31 @@ extraction_cutoff now explicitly uses nanosecond UTC dtype, matching Parquet.
 Synthetic boundary fixtures now use standard-library datetime arithmetic to
 provide an independent expected result and avoid pandas/NumPy fixture warnings.
 Dependency upgrades should rerun the full suite and regenerate constraints deliberately.
+
+## Phase 1.5 additions
+
+- CI now uses a fresh venv per Ubuntu/Windows job and explicit interpreter paths.
+  The reported pipx/packaging conflict belongs to runner-global tooling; project
+  pins are retained and pip check remains active.
+- DuckDB 1.4.5 LTS is the only new runtime package. PyArrow still owns the stored
+  schema and offline build; DuckDB adds exact SQL grouping and projection without
+  implementing an aggregation engine or a database service.
+- FilterSpec centralizes normalization for both backends. Existing function
+  signatures and valid filter semantics stay compatible; values are parameterized
+  and output identifiers are allowlisted.
+- Full-mode Streamlit now queries bounded outputs. This supersedes Phase 1's
+  full-frame app-memory limitation; the original loader still materializes its
+  selected artifact for small-data compatibility.
+- Exact aggregates retain NULL groups and include denominators. Output cardinality
+  caps raise errors rather than silently sample/truncate statistical populations.
+- Preview ordering is created_day then unique_key; previews are not representative
+  samples. No sampling API or final statistical estimator is introduced.
+- One embedded connection per query avoids shared mutable connections in Streamlit.
+  Default two threads/512 MB and bounded caches are conservative starting settings,
+  not measured full-scale deployment limits. Private temp directories permit spill.
+- Full ingestion/build layout is retained; only genuine checkpoint-validation gaps
+  were repaired. Row-group coalescing/partitioning is deferred until measured on a
+  real full snapshot.
+- Benchmark peak RSS on Linux uses VmHWM rather than getrusage, avoiding a parent's
+  synthetic-generation high-water mark being inherited across process execution.
+  Demo and synthetic results are reported separately, with no population claims.

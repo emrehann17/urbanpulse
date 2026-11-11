@@ -9,9 +9,9 @@ UrbanPulse asks: Which service requests take longest to close? How do service
 profiles differ across boroughs and community districts? How much apparent delay
 reflects still-open requests, request mix, or incomplete records?
 
-**Current phase: Phase 1 shared data pipeline and integration.** The repository
+**Current phase: Phase 1.5 — isolated CI and scalable Parquet access.** The repository
 provides ingestion, cleaning, closure/censoring features, geographic joins,
-Parquet contracts, universal filters, quality reporting, tests, and a small
+Parquet contracts, universal filters, DuckDB queries, quality reporting, tests, and a small
 Streamlit app. Final charts and model training are not implemented. The final
 course project still needs nine distinct visualizations (at least six advanced),
 meaningful interactions, two ML algorithms as the implementation goal, a one-page
@@ -74,7 +74,7 @@ python -m streamlit run app.py
 
 Choose a dataset, then use borough, complaint type, agency, and created-date
 filters. Counts, quality indicators, and the record preview consume the exact
-same filtered DataFrame. The record preview is limited to 200 rows; summary
+same filtered population (DataFrame for demo/smoke, SQL for full mode). The record preview is limited to 200 rows; summary
 metrics use all matching rows. Missing files and empty results have explicit messages.
 
 ## Ingest, preprocess, and validate
@@ -98,7 +98,7 @@ python -m pipeline quality --input data/processed/requests.parquet
 ```
 
 Full extraction can take substantial time and disk space. Ingestion and processing
-are bounded by page size; loading the full DataFrame needs enough RAM. Resume an
+are bounded by page size; loading the full DataFrame still needs enough RAM; full-mode Streamlit now uses the query layer. Resume an
 interrupted download by repeating identical arguments. To refresh or change
 sampling settings, use a new `--run-dir`. Never run concurrent writers on the same
 run/output paths. See [PIPELINE.md](docs/PIPELINE.md) for recovery and artifact details.
@@ -122,6 +122,40 @@ No Streamlit dependency is required by these functions. Missing values use
 `filtered_df` and return a Plotly figure without modifying the data. See the
 [team integration examples](docs/TEAM_GUIDE.md).
 
+## Scalable access for full data
+
+DuckDB **1.4.5 LTS** is the only new runtime dependency, installed by the existing
+requirements command. It queries local Parquet directly; no database server or
+persistent copy is created. Existing public DataFrame APIs and the 52-column
+contract remain unchanged.
+
+```python
+from pipeline.filters import FilterSpec
+from pipeline.query import ParquetQuery
+
+query = ParquetQuery(dataset="demo")  # choose "full" after full ingestion/build/audit
+filters = FilterSpec(borough=["Brooklyn", "Queens"], start_date="2025-01-01", end_date="2025-12-31")
+count = query.count(filters=filters)
+by_day = query.aggregate("created_day", filters=filters)
+closures = query.aggregate("borough", metrics=("closure_mean_hours", "censored", "unknown_outcomes"), filters=filters)
+preview = query.preview(("unique_key", "created_day", "borough"), filters=filters, limit=200)
+```
+
+SQL values are parameters, columns/metrics are allowlisted, and filters use the
+same `FilterSpec` normalization as `apply_filters()`. Aggregates are exact and
+include population/valid-observation denominators; null durations stay null.
+The preview is limited and must not be used as a representative sample. See the
+[team query examples](docs/TEAM_GUIDE.md) for all planned chart input patterns.
+
+```text
+python -m benchmarks.query_benchmark --output benchmarks/local/demo.json
+python -m benchmarks.query_benchmark --synthetic-rows 100000 --output benchmarks/local/synthetic.json
+```
+
+The measured demo favors cached Pandas latency; the bounded synthetic experiment
+favors DuckDB latency and memory. Neither verifies full 2025 performance. Details,
+limits, and reproducible reports are in [PERFORMANCE.md](docs/PERFORMANCE.md).
+
 ## Tests and style
 
 ```text
@@ -133,7 +167,8 @@ python -m pip check
 
 Tests use labelled synthetic fixtures and mocked API responses. They do not rely
 on live NYC availability. GitHub Actions is configured for Ubuntu and Windows,
-Python 3.12. Local executed checks and platform limitations are recorded in
+Python 3.12, with a fresh `.venv-ci` in each job. This isolates project packages
+from runner tools such as pipx; `pip check` remains enabled. Local executed checks and platform limitations are recorded in
 [PROJECT_STATUS.md](docs/PROJECT_STATUS.md); configured CI is not a claim that
 remote workflows have run.
 
@@ -148,7 +183,7 @@ urbanpulse/
 ├── pipeline/
 │   ├── __init__.py / __main__.py
 │   ├── ingest.py / preprocess.py / features.py / build.py
-│   ├── contract.py / loader.py / filters.py / quality.py / geography.py
+│   ├── contract.py / loader.py / filters.py / query.py / quality.py / geography.py
 ├── data/
 │   ├── raw/                # ignored original JSONL pages and run checkpoints
 │   ├── processed/          # ignored full/smoke Parquet artifacts
@@ -158,6 +193,7 @@ urbanpulse/
 ├── visualizations/         # integration instructions; final charts pending
 ├── ml/                     # design reference; trained models pending
 ├── tests/                  # deterministic offline tests and app integration
+├── benchmarks/             # reproducible script and small measured JSON reports
 ├── docs/                   # data dictionary, pipeline, quality, team and ML guides
 └── .github/workflows/ci.yml
 ```
@@ -195,3 +231,5 @@ for population inference or model training.
 - [Future ML design](docs/ML_DESIGN.md)
 - [Decisions and trade-offs](docs/DECISIONS.md)
 - [Project status and remaining work](docs/PROJECT_STATUS.md)
+
+- [Query performance and full-ingestion readiness](docs/PERFORMANCE.md)

@@ -99,3 +99,37 @@ it in `df.attrs["urbanpulse"]`. The quality report adds exact counts, exclusions
 raw/cleaned missingness, flags, matching rates, and artifact checksum.
 Filtered frames retain provenance, but their summaries always count only their own rows.
 See [PIPELINE.md](PIPELINE.md) for schema-change review and rebuild requirements.
+
+## Phase 1.5 query outputs (not new stored columns)
+
+The stored 52-column schema and `1.0.0` version are unchanged. `ParquetQuery`
+returns projected source columns with nullable pandas types, or aggregate tables
+whose grouping columns are named source columns and whose metric columns are:
+
+| Query metric | Type | Units / meaning | Null/denominator policy |
+| --- | --- | --- | --- |
+| requests | Int64 | Exact matching record count | Always included; includes all outcome states and NULL groups. Zero for an empty ungrouped result. |
+| valid_closures | Int64 | Non-null closure_hours count | Automatically included with duration summaries; their valid denominator. |
+| closed | Int64 | closure_event=True count | Uses validated events, not current status alone. |
+| censored | Int64 | closure_event=False count | Included in population counts; never treated as zero duration. |
+| unknown_outcomes | Int64 | closure_event is null count | Retained and reported. |
+| closure_mean_hours | Float64 | Mean validated closure_hours | Ignores nulls; null if no valid closures. Not a mean over all requests. |
+| closure_min_hours | Float64 | Minimum validated closure_hours | Same valid denominator/null policy. |
+| closure_max_hours | Float64 | Maximum validated closure_hours | Same valid denominator/null policy; outliers are preserved. |
+| known_long_labels | Int64 | Non-null is_long_closure count | Includes mature censored positives; excludes unknown/immature labels. |
+| long_closures | Int64 | is_long_closure=True count | Includes valid long completions and mature censored observations. |
+| long_closure_rate | Float64 | long_closures / known_long_labels, fraction 0–1 | Null for zero denominator; both counts are automatically included. |
+
+NULL grouping keys form their own group. Empty grouped results have no rows;
+empty ungrouped aggregation returns one row with zero counts and null statistics.
+Every aggregate includes requests even if omitted in the metric selection.
+`summary()` retains the existing get_data_summary field meanings and Python dict
+return types. `filter_options()` retains the existing get_filter_options contract.
+Previews are limited projections, not statistically representative samples.
+
+[DuckDB TIMESTAMPTZ](https://duckdb.org/docs/1.4/sql/data_types/timestamp) uses microsecond precision. The verified NYC timestamps have
+millisecond precision and the recorded extraction cutoff has microsecond precision,
+so those inputs are preserved, with query output converted back to the documented
+pandas timezone/ns dtype. Arbitrary future sub-microsecond timezone-aware input
+would be rounded/truncated by DuckDB; use Arrow/the original loader for exact such
+values. The stored Parquet timestamps are never rewritten by queries.

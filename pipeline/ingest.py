@@ -107,6 +107,15 @@ def iter_pages(run_dir: Path, manifest: dict):
             rows = [json.loads(line) for line in handle]
         if len(rows) != page["rows"]:
             raise ValueError(f"Raw row count mismatch: {path}")
+        if (
+            rows
+            and "last_created" in page
+            and (
+                page["last_created"] != rows[-1].get("created_date")
+                or page["last_key"] != rows[-1].get("unique_key")
+            )
+        ):
+            raise ValueError(f"Checkpoint cursor does not match committed page: {path}")
         yield rows
 
 
@@ -166,8 +175,12 @@ def ingest(
             manifest = json.loads(checkpoint.read_text(encoding="utf-8"))
             if manifest["config"] != config:
                 raise ValueError("Checkpoint arguments differ; choose a new --run-dir")
-            audit_raw(run_dir, manifest)
+            audit = audit_raw(run_dir, manifest)
+            if audit["duplicate_keys"] or audit["missing_keys"]:
+                raise ValueError("Checkpoint key audit failed; preserve run for investigation")
             if manifest["complete"]:
+                if audit != manifest["audit"]:
+                    raise ValueError("Completed checkpoint audit counts do not match raw pages")
                 return manifest
         else:
             metadata = client.get(f"/api/views/{REQUESTS_ID}.json")

@@ -1,6 +1,6 @@
 # Shared data pipeline
 
-Phase 1 provides a reusable local pipeline. It does not implement the nine final
+Phase 1.5 extends the reusable local pipeline with isolated CI and direct Parquet queries. It does not implement the nine final
 visualizations or train models. The target runtime is Python 3.12.
 
 ```mermaid
@@ -18,6 +18,12 @@ flowchart LR
     K --> L[apply_filters]
     L --> M[Streamlit diagnostics]
     L --> N[Future charts and ML]
+    J --> Q[ParquetQuery: projected SQL scans]
+    S[Shared FilterSpec] --> L
+    S --> Q
+    Q --> R[Exact aggregates + limited previews]
+    R --> M
+    R --> N
 ```
 
 ## Rerunning the pipeline
@@ -129,9 +135,10 @@ Schema version `1.0.0` is defined centrally in `pipeline.contract.SCHEMA`. It ha
 source, cutoff, mode, sampling, schema version, and manifest/geography hashes.
 `load_data()` validates schema and outcomes and attaches provenance to
 `df.attrs['urbanpulse']`. It is local-only and defaults explicitly to `dataset='demo'`.
-Selecting `full` never falls back to a sample. The convenience loader and Streamlit
-hold the selected artifact in memory; very large analyses should batch-scan
-Parquet or introduce a reviewed query layer before deploying the full dashboard.
+Selecting `full` never falls back to a sample. The convenience loader still holds
+the selected artifact in memory. Full-mode Streamlit instead uses ParquetQuery
+for footer validation, option lists, exact summaries, and a 200-row projection.
+Demo and smoke modes keep the existing DataFrame workflow.
 
 `apply_filters` returns an independent DataFrame with the same dtypes and attrs;
 all active filters are ANDed. Within a category, values are ORed. `None`/`'All'`
@@ -146,3 +153,32 @@ and review by all three students. Additive changes require a minor version and
 updated docs/tests. Even minor-version files require rebuilding or an explicit
 loader compatibility change: the current loader accepts exactly 1.0.0. Bug fixes
 without contract changes use a patch version and retain provenance.
+
+
+## Offline preparation versus interactive queries
+
+Ingestion, preprocessing, full uniqueness/outcome validation, and Parquet building
+remain **offline** commands. No interactive request downloads or rebuilds data.
+Before serving a new snapshot, run the quality command. `inspect_data()` factors
+out shared path/footer/schema/provenance checks for both loaders; query startup
+intentionally does not repeat an expensive whole-dataset quality scan.
+
+`ParquetQuery` opens a short-lived embedded DuckDB connection for each operation,
+scans the local Parquet file with column projection and supported filter pushdown,
+and returns a small DataFrame or scalar. All caller values are parameters; SQL
+identifiers and metric expressions come from allowlists. Shared `FilterSpec`
+normalization drives both SQL and Pandas predicates. Inclusive filtering uses the
+existing New York `created_day` strings, preserving DST and NULL-date semantics.
+See [TEAM_GUIDE.md](TEAM_GUIDE.md) for signatures and tested aggregate examples.
+
+Queries default to two threads and a 512 MB DuckDB buffer-manager limit. A private
+temporary directory permits supported disk spilling and is removed after closing
+the connection. These are per-query settings, not a process-wide RAM guarantee.
+Returned previews are capped at 10,000 rows; aggregate results above 100,000 groups
+raise rather than truncate. Exact statistics are never silently sampled. The app
+requests only 200 preview rows and caches bounded results, not the full dataset.
+
+Phase 1.5 also validates resumed checkpoint audit counts and saved cursors against
+committed pages. It preserves existing scope, immutable raw records, timestamps,
+52-column schema, and historical outcome definitions. See [PERFORMANCE.md](PERFORMANCE.md)
+for disk sizing, row-group trade-offs, readiness review, and measured limits.

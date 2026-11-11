@@ -1,5 +1,6 @@
 """One global filtering implementation for notebooks and every visualization."""
 
+from dataclasses import dataclass
 from datetime import date, datetime
 
 import pandas as pd
@@ -8,13 +9,14 @@ type Selection = str | list[str] | tuple[str, ...] | None
 type DateValue = str | date | datetime | pd.Timestamp | None
 
 
-def _selection_mask(series: pd.Series, selection: Selection) -> pd.Series:
+def normalize_selection(selection: Selection) -> tuple[str, ...] | None:
+    """Normalize global category values once for Pandas and SQL consumers."""
     if selection is None:
-        return pd.Series(True, index=series.index)
-    selected = [selection] if isinstance(selection, str) else list(selection)
-    if "All" in selected:
-        return pd.Series(True, index=series.index)
-    return series.isin(selected)
+        return None
+    selected = (selection,) if isinstance(selection, str) else tuple(selection)
+    if any(not isinstance(value, str) for value in selected):
+        raise ValueError("Category selections must contain strings")
+    return None if "All" in selected else selected
 
 
 def _day(value: DateValue) -> str | None:
@@ -26,6 +28,25 @@ def _day(value: DateValue) -> str | None:
     if stamp.tzinfo is not None:
         stamp = stamp.tz_convert("America/New_York")
     return stamp.date().isoformat()
+
+
+@dataclass(frozen=True)
+class FilterSpec:
+    """Immutable normalized global filters, with inclusive New York calendar days."""
+
+    borough: Selection = None
+    complaint_type: Selection = None
+    agency: Selection = None
+    start_date: DateValue = None
+    end_date: DateValue = None
+
+    def __post_init__(self):
+        for name in ("borough", "complaint_type", "agency"):
+            object.__setattr__(self, name, normalize_selection(getattr(self, name)))
+        object.__setattr__(self, "start_date", _day(self.start_date))
+        object.__setattr__(self, "end_date", _day(self.end_date))
+        if self.start_date and self.end_date and self.start_date > self.end_date:
+            raise ValueError("start_date must not be after end_date")
 
 
 def apply_filters(
@@ -42,20 +63,16 @@ def apply_filters(
     None or 'All' disables a categorical filter; [] selects no records. Unknown
     values produce no matches. Null dates survive only when no date bound is set.
     """
-    start, end = _day(start_date), _day(end_date)
-    if start and end and start > end:
-        raise ValueError("start_date must not be after end_date")
+    spec = FilterSpec(borough, complaint_type, agency, start_date, end_date)
     mask = pd.Series(True, index=df.index)
-    for name, selected in (
-        ("borough", borough),
-        ("complaint_type", complaint_type),
-        ("agency", agency),
-    ):
-        mask &= _selection_mask(df[name], selected)
-    if start:
-        mask &= df.created_day.ge(start).fillna(False)
-    if end:
-        mask &= df.created_day.le(end).fillna(False)
+    for name in ("borough", "complaint_type", "agency"):
+        selected = getattr(spec, name)
+        if selected is not None:
+            mask &= df[name].isin(selected)
+    if spec.start_date:
+        mask &= df.created_day.ge(spec.start_date).fillna(False)
+    if spec.end_date:
+        mask &= df.created_day.le(spec.end_date).fillna(False)
     return df.loc[mask].copy()
 
 

@@ -171,3 +171,18 @@ def test_composite_cursor_allows_decreasing_id_across_timestamps(tmp_path, raw_r
     assert result["pages"][0]["last_key"] == "0199"
     assert result["pages"][1]["last_key"] == "0100"
     assert result["pages"][1]["last_created"] == "2025-01-01T01:00:00.000"
+
+
+def test_completed_checkpoint_counts_and_cursor_are_validated(tmp_path, raw_row):
+    from pipeline.ingest import write_json
+
+    manifest = ingest(tmp_path, per_month=1, client=FakeClient(raw_row))
+    manifest["audit"]["downloaded_rows"] += 1
+    write_json(tmp_path / "manifest.json", manifest)
+    with pytest.raises(ValueError, match="audit counts"):
+        ingest(tmp_path, per_month=1, client=FakeClient(raw_row))
+    manifest["audit"]["downloaded_rows"] -= 1
+    manifest["pages"][0]["last_key"] = "999999"
+    write_json(tmp_path / "manifest.json", manifest)
+    with pytest.raises(ValueError, match="cursor"):
+        ingest(tmp_path, per_month=1, client=FakeClient(raw_row))

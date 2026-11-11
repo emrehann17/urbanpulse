@@ -6,13 +6,49 @@ import pandas as pd
 import streamlit as st
 
 from pipeline import apply_filters, get_data_summary, get_filter_options, load_data
+from pipeline.filters import FilterSpec
 from pipeline.loader import data_path
+from pipeline.query import ParquetQuery
+
+PREVIEW_COLUMNS = (
+    "unique_key",
+    "created_date",
+    "borough",
+    "complaint_type",
+    "agency",
+    "duration_bucket",
+    "closure_hours",
+    "boro_cd",
+)
 
 
 @st.cache_data(show_spinner="Loading the shared dataset…")
 def cached_data(dataset: str, modified_ns: int, file_size: int) -> pd.DataFrame:
     """Invalidate cached data when the local artifact changes."""
     return load_data(dataset=dataset)
+
+
+def snapshot_query(dataset: str, fingerprint: tuple) -> ParquetQuery:
+    """Reject a replacement between the app's catalog and diagnostic queries."""
+    query = ParquetQuery(dataset=dataset)
+    stat = query.path.stat()
+    if (str(query.path), stat.st_mtime_ns, stat.st_size) != fingerprint:
+        raise ValueError("Dataset changed; rerun the application to refresh this snapshot")
+    return query
+
+
+@st.cache_data(max_entries=8, ttl=600)
+def query_catalog(dataset: str, fingerprint: tuple) -> tuple:
+    """Cache small option lists/provenance, never a full request DataFrame."""
+    query = snapshot_query(dataset, fingerprint)
+    return query.provenance, query.filter_options(), query.count()
+
+
+@st.cache_data(max_entries=32, ttl=600)
+def query_diagnostics(dataset: str, fingerprint: tuple, filters: FilterSpec) -> tuple:
+    """Cache one summary and at most 200 projected rows per selection."""
+    query = snapshot_query(dataset, fingerprint)
+    return query.summary(filters=filters), query.preview(PREVIEW_COLUMNS, filters=filters)
 
 
 def main() -> None:
@@ -24,12 +60,17 @@ def main() -> None:
     try:
         path = data_path(dataset)
         stat = path.stat()
-        df = cached_data(dataset, stat.st_mtime_ns, stat.st_size)
+        fingerprint = (str(path.resolve()), stat.st_mtime_ns, stat.st_size)
+        if dataset == "full":
+            provenance, options, total_rows = query_catalog(dataset, fingerprint)
+        else:
+            df = cached_data(dataset, stat.st_mtime_ns, stat.st_size)
+            provenance = df.attrs["urbanpulse"]
+            options, total_rows = get_filter_options(df), len(df)
     except (OSError, ValueError) as exc:
         st.error(f"The selected dataset could not be loaded. {exc}")
         st.code("python -m pipeline --help")
         return
-    provenance = df.attrs["urbanpulse"]
     if provenance["mode"] != "full":
         st.warning(
             "SAMPLE: selected records from each month of 2025. Counts and rates describe "
@@ -44,7 +85,6 @@ def main() -> None:
         f"Observation cutoff: {provenance['extraction_cutoff']} · "
         f"Schema {provenance['schema_version']}"
     )
-    options = get_filter_options(df)
     selections = {}
     for field, label in (
         ("borough", "Borough"),
@@ -72,31 +112,31 @@ def main() -> None:
             st.info("Choose both a start and end date.")
             return
         start, end = dates
-    filtered = apply_filters(df, **selections, start_date=start, end_date=end)
-    summary = get_data_summary(filtered)
+    try:
+        filters = FilterSpec(**selections, start_date=start, end_date=end)
+        if dataset == "full":
+            summary, preview = query_diagnostics(dataset, fingerprint, filters)
+        else:
+            filtered = apply_filters(df, **selections, start_date=start, end_date=end)
+            summary = get_data_summary(filtered)
+            preview = filtered[list(PREVIEW_COLUMNS)].head(200)
+    except (OSError, ValueError) as exc:
+        st.error(f"Unable to query the selected data. {exc}")
+        return
     left, middle, right = st.columns(3)
-    left.metric("Filtered requests", f"{summary['rows']:,}", help=f"Loaded records: {len(df):,}")
+    left.metric(
+        "Filtered requests", f"{summary['rows']:,}", help=f"Dataset records: {total_rows:,}"
+    )
     middle.metric("Valid closure observations", f"{summary['valid_closures']:,}")
     right.metric("Matched district / JIA", f"{summary['geographic_matches']:,}")
-    if filtered.empty:
+    if summary["rows"] == 0:
         st.info("No records match these filters. Adjust the sidebar selections.")
         return
     st.subheader("Shared-data quality indicators")
     st.json(summary)
     st.subheader("Filtered record preview")
     st.dataframe(
-        filtered[
-            [
-                "unique_key",
-                "created_date",
-                "borough",
-                "complaint_type",
-                "agency",
-                "duration_bucket",
-                "closure_hours",
-                "boro_cd",
-            ]
-        ].head(200),
+        preview,
         hide_index=True,
         use_container_width=True,
     )

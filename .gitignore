@@ -34,3 +34,5 @@ Thumbs.db
 *.sqlite*
 .coverage
 htmlcov/
+.venv-ci/
+benchmarks/local/

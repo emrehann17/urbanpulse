@@ -160,8 +160,9 @@ figure = create_visualization(filtered)
 st.plotly_chart(figure, use_container_width=True, key="student_one_chart")
 ```
 
-All other components receive that same `filtered` object. Keep global filter
-widgets and `apply_filters` in the app shell. Current widget keys are
+For DataFrame modules, other components receive that same `filtered` object.
+For full-data modules, pass one shared FilterSpec through the query layer as shown
+below. Keep global filter widgets and normalization in the app shell. Current widget keys are
 `{dataset}_borough`, `{dataset}_complaint_type`, `{dataset}_agency`, and
 `{dataset}_dates`. Future cross-chart selections should use a separate namespaced
 session-state dictionary, convert selections into shared filter arguments, and
@@ -185,7 +186,7 @@ such exceptions before integration; the default interface stays Plotly.
 6. Push your branch and open a PR when authorized by the team. Ask another student
    to review interpretation, usability, filtering, and integration.
 
-Phase 1 implementation does not push or create remote PRs on your behalf. All
+The repository is published on GitHub. Phase 1.5 work does not push or create remote PRs on your behalf. All
 three students must review schema/target definition changes. Follow semantic
 versioning and explicit rebuild requirements in [PIPELINE.md](PIPELINE.md).
 
@@ -203,10 +204,148 @@ versioning and explicit rebuild requirements in [PIPELINE.md](PIPELINE.md).
 | Schema mismatch | Pull matching code and rebuild; do not drop validation or edit Parquet manually. |
 | Empty dashboard | Clear restrictive filters or select All; an empty multiselect intentionally matches nothing. |
 | Unknown outcomes | Inspect status/date/DST flags and raw audit values; do not infer an outcome. |
-| Full dataset exceeds RAM | Use demo for development, Arrow batches offline, or plan a shared query layer. |
+| Full dataset exceeds RAM | Use ParquetQuery for aggregates and bounded projections; retain Pandas for small data. |
 | Windows file cleanup issue | Close notebooks/apps using artifacts before replacement; recreate venv if necessary. |
 
 `python -m ruff format .` formats source. Tests are offline; a public API outage
 should not prevent local development. Report actual source failures separately
 from mock-test results. See [PROJECT_STATUS.md](PROJECT_STATUS.md) for what has
 actually been executed on each platform.
+
+## Phase 1.5: choose the access API by workload
+
+Use the existing `load_data()` + `apply_filters()` workflow for the 2,400-row demo
+and small notebook experiments. Use **`ParquetQuery` for the full dataset**. It
+reads selected Parquet columns and returns exact aggregates or bounded previews;
+it never calls `load_data()` internally. `FilterSpec` normalizes the same public
+filter arguments as `apply_filters`; category values remain exact, case-sensitive
+cleaned labels. NULLs remain in unrestricted populations and NULL-key groups.
+
+The following example runs against the real demo without a download. After a
+separate full build and quality audit, change only `dataset="demo"` to `"full"`.
+
+```python
+from pipeline import load_data, apply_filters
+from pipeline.filters import FilterSpec
+from pipeline.query import ParquetQuery
+
+shared = dict(
+    borough=["Brooklyn", "Queens"], complaint_type="All", agency=None,
+    start_date="2025-01-01", end_date="2025-12-31",
+)
+filters = FilterSpec(**shared)
+query = ParquetQuery(dataset="demo")
+
+# The same filtered population through both APIs (parity check for small data only).
+small = apply_filters(load_data(dataset="demo"), **shared)
+assert query.count(filters=filters) == len(small)
+
+by_borough = query.aggregate("borough", filters=filters)
+by_day = query.aggregate("created_day", filters=filters)
+complaints = query.aggregate("complaint_type", filters=filters)
+agency_complaints = query.aggregate(("agency", "complaint_type"), filters=filters)
+closures = query.aggregate(
+    "borough", filters=filters,
+    metrics=("requests", "valid_closures", "closed", "censored", "unknown_outcomes",
+             "closure_mean_hours", "closure_min_hours", "closure_max_hours"),
+)
+districts = query.aggregate(
+    ("boro_cd", "geography_status"), filters=filters,
+    metrics=("requests", "closure_mean_hours", "long_closure_rate"),
+)
+outcomes = query.aggregate(metrics=("closed", "censored", "unknown_outcomes"), filters=filters)
+preview = query.preview(
+    ("unique_key", "created_day", "complaint_type", "closure_hours", "closure_event"),
+    filters=filters, limit=200,
+)
+assert outcomes.requests.iloc[0] == outcomes[["closed", "censored", "unknown_outcomes"]].sum(axis=1).iloc[0]
+```
+
+These operations are exercised in offline tests, including empty populations,
+NULL categories, unknown outcomes, time-zone date bounds, and combined filters.
+Do not copy the small-data parity check into full-mode application startup.
+
+### Query interfaces
+
+```text
+FilterSpec(borough=None, complaint_type=None, agency=None, start_date=None, end_date=None)
+ParquetQuery(path=None, *, dataset="demo", memory_limit_mb=512, threads=2)
+query.count(*, filters=None) -> int
+query.summary(*, filters=None) -> dict
+query.filter_options() -> dict
+query.aggregate(group_by=(), *, metrics=("requests",), filters=None) -> DataFrame
+query.preview(columns, *, filters=None, limit=200) -> DataFrame
+```
+
+Paths follow the loader: relative paths resolve under the configured data root;
+explicit absolute pathlib paths also work. Constructor checks only schema/provenance
+in the footer. Run `python -m pipeline quality --input ...` once offline before
+serving a newly built artifact. Do not replace an artifact while queries are using
+it; the query object rejects detected size/mtime/inode changes. Build snapshots
+under new filenames and switch during a quiet period if serving multiple users.
+
+Only contract column names and registered metric names are accepted. Values are
+SQL parameters, not interpolated text. Do not write chart-specific SQL, WHERE
+clauses, category normalization, or date conversion. Use one `FilterSpec` constructed
+by the app shell for all nine components. `None` and `"All"` are unrestricted,
+`[]` means no matches, selections OR within a category and AND across categories,
+and dates are inclusive local days, exactly as in the DataFrame API. Category
+selection elements must be strings; None is an unrestricted **selection**, not
+an explicit NULL category token. Unrestricted and All selections retain null rows.
+
+Every aggregate includes `requests`. Duration summaries automatically include
+`valid_closures`; their means/min/max ignore null closure hours. A requested
+`long_closure_rate` automatically includes `known_long_labels` and `long_closures`.
+That rate uses **known labels**, including mature censored positives, not every
+request or only completed requests. A zero denominator gives null, never zero.
+Request totals include censored and unknown outcomes. NULL grouping keys are
+retained. Use `geography_status` to distinguish district, JIA, and unmatched groups;
+do not silently drop them before reporting exclusions.
+
+Previews require explicit column projection and `0 <= limit <= 10000`. They sort
+by local created_day and unique_key (null days last). A preview is a deterministic
+limited listing, **not a random or representative sample**. Exact counts and
+aggregates always use the whole matching population. More than 100,000 grouped
+results raises a clear error rather than truncating exact aggregates. Narrow an
+explicit cohort or agree on a reviewed streaming/binned design if this is exceeded.
+
+### Integration of future charts
+
+For small-data modules, keep `create_visualization(filtered_df) -> Figure`.
+For full-data modules, have the app shell fetch a **small, named aggregate table**
+and pass it to a pure figure function with documented required columns:
+
+```python
+# After a future module exists; do not implement the chart in the query layer.
+# from visualizations.student_one_chart import create_visualization
+# by_day = query.aggregate("created_day", filters=filters)
+# st.plotly_chart(create_visualization(by_day), key="student_one_chart")
+```
+
+Document whether a figure accepts request rows or an aggregate table; these have
+different schemas. Never pass a truncated preview to a function expecting the
+entire population without visibly labelling its limited scope. Chart-specific
+transformations such as pivoting exact counts into proportions may happen locally
+on aggregate results. Common filters remain exclusively in the shared layer.
+
+| Planned visualization | Shared query inputs / caution |
+| --- | --- |
+| Bivariate Choropleth | District/geography-status aggregates, counts and duration/known-label denominators; separate JIAs and unmatched rows. |
+| Calendar Heatmap | Exact created_day request counts; missing-day group reported separately. |
+| Sankey Diagram | Exact agency × complaint_type counts, retaining missing-category groups. |
+| Survival Curve | Group by observed_hours and closure_event with requests as frequency weights; report unknown-outcome exclusions. Never fit from a preview. |
+| Ridgeline Density Plot | Exact complaint_type × closure_hours frequencies within a reviewed cohort, or a separately designed and labelled sampling/binning method. |
+| Bipartite Network Graph | Exact agency × complaint_type edge counts; document any display-only edge threshold. |
+| Parallel Coordinates | District aggregate profiles and explicit support/denominators, normalized later under the ML design. |
+| PCA Cluster Explorer | District × complaint counts plus district outcome summaries; fit transformations/models later. |
+| Linked Time-Series Explorer | Exact created_day × agency or complaint_type aggregates with the same FilterSpec. |
+
+High-cardinality duration/time combinations may exceed the group limit. This phase
+does not implement a streaming survival estimator, density sampler, chart, or model;
+those designs must be reviewed before presenting full-population results. Do not
+solve a group-limit error by silently limiting or sampling statistical input.
+
+Full-mode Streamlit uses bounded caches: eight catalog entries and 32 filtered
+summary/200-row preview entries, each with a ten-minute TTL and file fingerprint.
+It does not cache DuckDB connections or full request frames. See
+[PERFORMANCE.md](PERFORMANCE.md) for memory limits and benchmark evidence.

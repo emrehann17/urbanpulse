@@ -1,0 +1,114 @@
+{
+  "measured_at": "2026-11-11T12:43:43.860780+00:00",
+  "synthetic": false,
+  "rows": 2400,
+  "file_bytes": 560131,
+  "row_groups": 24,
+  "row_group_sizes": [
+    100,
+    100,
+    100,
+    100,
+    100,
+    100,
+    100,
+    100,
+    100,
+    100,
+    100,
+    100,
+    100,
+    100,
+    100,
+    100,
+    100,
+    100,
+    100,
+    100,
+    100,
+    100,
+    100,
+    100
+  ],
+  "environment": {
+    "python": "3.12.3",
+    "platform": "Linux-6.18.58.1-microsoft-standard-WSL2-x86_64-with-glibc2.39",
+    "machine": "x86_64",
+    "logical_cpus": 12,
+    "pandas": "2.2.3",
+    "pyarrow": "19.0.1",
+    "duckdb": "1.4.5"
+  },
+  "filters": {
+    "borough": "Brooklyn",
+    "start_date": "2025-01-01",
+    "end_date": "2025-12-31"
+  },
+  "preview_columns": [
+    "unique_key",
+    "borough",
+    "complaint_type",
+    "closure_hours"
+  ],
+  "repetitions": 3,
+  "duckdb_memory_limit_mb": 512,
+  "duckdb_threads": 2,
+  "exact_result_parity": true,
+  "results": {
+    "pandas": {
+      "setup_ms": 98.168,
+      "timings": {
+        "filtered_count": {
+          "median_ms": 4.64,
+          "min_ms": 4.42
+        },
+        "borough": {
+          "median_ms": 6.925,
+          "min_ms": 5.655
+        },
+        "created_day": {
+          "median_ms": 10.309,
+          "min_ms": 9.769
+        },
+        "complaint_type": {
+          "median_ms": 10.091,
+          "min_ms": 8.904
+        },
+        "preview_200": {
+          "median_ms": 17.214,
+          "min_ms": 16.101
+        }
+      },
+      "baseline_peak_rss_mib": 137.7109375,
+      "peak_rss_mib": 166.75390625
+    },
+    "duckdb": {
+      "setup_ms": 5.46,
+      "timings": {
+        "filtered_count": {
+          "median_ms": 17.722,
+          "min_ms": 16.671
+        },
+        "borough": {
+          "median_ms": 25.566,
+          "min_ms": 23.956
+        },
+        "created_day": {
+          "median_ms": 21.918,
+          "min_ms": 20.579
+        },
+        "complaint_type": {
+          "median_ms": 24.032,
+          "min_ms": 22.706
+        },
+        "preview_200": {
+          "median_ms": 23.171,
+          "min_ms": 21.88
+        }
+      },
+      "baseline_peak_rss_mib": 137.80859375,
+      "peak_rss_mib": 155.03515625
+    }
+  },
+  "method": "separate backend processes; cached Pandas load; fresh SQL connection per query; median/min wall time; process peak RSS includes imports and native allocations; Linux RSS from /proc/self/status VmHWM (reset on exec), macOS from getrusage; OS file cache not flushed; RSS unavailable on Windows"
+}
