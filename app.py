@@ -1,4 +1,4 @@
-"""Phase 1 integration: shared filters, quality indicators, and a record preview."""
+"""Shared-filter integration: Member 1 charts and original data diagnostics."""
 
 from datetime import date
 
@@ -9,6 +9,7 @@ from pipeline import apply_filters, get_data_summary, get_filter_options, load_d
 from pipeline.filters import FilterSpec
 from pipeline.loader import data_path
 from pipeline.query import ParquetQuery
+from visualizations.member1 import render_member1
 
 PREVIEW_COLUMNS = (
     "unique_key",
@@ -53,9 +54,9 @@ def query_diagnostics(dataset: str, fingerprint: tuple, filters: FilterSpec) -> 
 
 def main() -> None:
     """Render a minimal integration app without making any network requests."""
-    st.set_page_config(page_title="UrbanPulse — Phase 1", layout="wide")
+    st.set_page_config(page_title="UrbanPulse — Member 1", layout="wide")
     st.title("UrbanPulse — Where Do Public Service Requests Wait?")
-    st.caption("Phase 1: shared data and filtering diagnostics · CEN445")
+    st.caption("Member 1: geography, waiting times, and daily demand · CEN445")
     dataset = st.sidebar.selectbox("Dataset", ["demo", "smoke", "full"], key="dataset")
     try:
         path = data_path(dataset)
@@ -132,18 +133,20 @@ def main() -> None:
     if summary["rows"] == 0:
         st.info("No records match these filters. Adjust the sidebar selections.")
         return
-    st.subheader("Shared-data quality indicators")
-    st.json(summary)
-    st.subheader("Filtered record preview")
-    st.dataframe(
-        preview,
-        hide_index=True,
-        use_container_width=True,
-    )
-    st.caption(
-        "Preview limited to 200 rows. All indicators use the same complete filtered data. "
-        "These diagnostics are not part of the nine final visualizations."
-    )
+    with st.expander("Shared-data diagnostics", expanded=False):
+        st.subheader("Shared-data quality indicators")
+        st.json(summary)
+        st.subheader("Filtered record preview")
+        st.dataframe(
+            preview,
+            hide_index=True,
+            use_container_width=True,
+        )
+        st.caption(
+            "Preview limited to 200 rows. All indicators use the same complete filtered data. "
+            "These diagnostics are not part of the nine final visualizations."
+        )
+    render_member1(path, filters, is_full=provenance["mode"] == "full", fingerprint=fingerprint)
 
 
 if __name__ == "__main__":

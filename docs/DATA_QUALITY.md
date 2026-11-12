@@ -1,8 +1,114 @@
-# Data quality — measured real smoke sample
+# Data quality — full 2025 snapshot and historical smoke sample
 
-**Full ingestion has not run. Every request count and rate in this document refers
-only to the 2,400-record real smoke/demo sample**, not the complete 2025 population.
-Tests use separate labelled synthetic fixtures; their counts are not mixed here.
+## Full snapshot verified during Phase 2A
+
+These measurements describe **3,652,435 genuine NYC 311 requests**, not the 2,400-row
+sample. Source: [NYC 311 erm2-nwe9](https://data.cityofnewyork.us/d/erm2-nwe9), created
+in 2025, five-borough source scope. No new ingestion or build was run during Phase 2A.
+The existing local `data/raw/full/manifest.json` and
+`data/processed/requests.quality.json` were inspected. A fresh bounded Parquet
+schema/global uniqueness/outcome validation passed in **41.258 seconds**, and its
+SHA-256 matches the build report. A compact evidence record is included at
+[data/metadata/full-validation-summary.json](../data/metadata/full-validation-summary.json).
+The complete validation report remains local at `data/processed/requests.validation.json`.
+
+| Full extraction / artifact | Measured result |
+| --- | ---: |
+| Source count at extraction start | 3,652,435 |
+| Downloaded / unique raw keys | 3,652,435 / 3,652,435 |
+| Downloaded minus source count | 0 |
+| Raw duplicate / missing keys | 0 / 0 |
+| Processed / unique output keys | 3,652,435 / 3,652,435 |
+| Duplicate output / excluded ID rows | 0 / 0 |
+| Stored columns / row groups | 52 / 737 |
+| Parquet bytes | 327,286,299 |
+| Full Parquet validation | Passed |
+| Valid completed observations | 3,593,599 |
+| Valid right-censored observations | 47,756 |
+| Unknown outcomes | 11,080 |
+
+Extraction-start observation cutoff: **2026-11-11T13:05:11.985204+00:00**.
+Extraction finished: **2026-11-11T13:38:17.429688+00:00**.
+Build timestamp: **2026-11-11T13:38:24.988611+00:00**.
+Parquet SHA-256: `8b2c29b7e860a344f29e53834dc36093feb3aa1bc873a69a2f00e9184810821a`.
+Manifest SHA-256: `e6a4e63dada611ad0a7f411bee45c509ebab05d88afa3c10f67772b455b7ec86`.
+
+Count equality does not prove a transactional snapshot: the live source can change
+between pages. Original raw pages and source metadata remain local; no large raw
+or full Parquet artifact is tracked in Git.
+
+### Full cleaning flags
+
+Flags overlap: do not add them as distinct affected requests. Dates unresolved by
+New York daylight-saving rules stay null with raw source values retained.
+
+| Flag | Affected records |
+| --- | ---: |
+| `is_duplicate_key` | 0 |
+| `missing_unique_key` | 0 |
+| `dst_unresolved` | 1,276 |
+| `invalid_created_date` | 796 |
+| `invalid_closed_date` | 760 |
+| `invalid_resolution_action_updated_date` | 757 |
+| `invalid_borough` | 0 |
+| `has_valid_coordinates` | 3,604,707 |
+| `invalid_coordinates` | 0 |
+| `negative_duration` | 845 |
+| `status_date_inconsistent` | 10,556 |
+| `after_cutoff` | 0 |
+| `duration_outlier` | 6,306 |
+| `board_borough_mismatch` | 2,530 |
+
+Negative durations, invalid dates, status/closing-date conflicts and cutoff conflicts
+cannot become valid closures. Valid unusually long closures remain available;
+6,306 valid durations exceed 8,760 hours and are not clipped. Unknown outcomes
+have neither fabricated closure nor censoring time. The survival helper uses all
+3,641,355 known outcomes; the daily closure median uses 3,593,599 completed outcomes.
+
+### Full missingness and geography
+
+Percentages below use all 3,652,435 processed requests. Source missingness differs
+from cleaned missingness; see the local quality report for every raw/clean field.
+
+| Clean field | Missing count | Percent |
+| --- | ---: | ---: |
+| `created_date` | 796 | 0.0218% |
+| `closed_date` | 54,543 | 1.4933% |
+| `resolution_action_updated_date` | 28,136 | 0.7703% |
+| `closure_hours` | 58,836 | 1.6109% |
+| `observed_hours` | 11,080 | 0.3034% |
+| `is_long_closure` | 11,080 | 0.3034% |
+| `latitude` | 47,728 | 1.3067% |
+| `longitude` | 47,728 | 1.3067% |
+| `boro_cd` | 40,085 | 1.0975% |
+
+| Geographic outcome | Requests | Percent of all requests |
+| --- | ---: | ---: |
+| community_district | 3,596,942 | 98.4807% |
+| unmatched | 40,085 | 1.0975% |
+| joint_interest_area | 15,408 | 0.4219% |
+
+All matched district/JIA identifiers: **3,612,350 / 3,652,435 = 98.9025%**.
+The map compares only 59 ordinary districts, excluding 15,408 JIA and 40,085
+unmatched requests. All 59 districts have sufficient known labels in the
+unfiltered full snapshot. Board/request borough disagreements (2,530) retain
+the existing verified board-derived mapping and audit flag. No point-in-polygon
+or historical-boundary claim is added. Geometry remains the validated 2026 release.
+
+The 796 invalid creation dates remain in the artifact and unrestricted district
+counts, but not daily bins. Applying the app's default inclusive 2025 date filter
+excludes them consistently from **all** charts and diagnostics: **3,651,639** requests.
+Unknown survival outcomes then number **10,284**. This is filtering, not data loss.
+
+Full chart timings, output bounds and cohort reconciliation are recorded in
+[PERFORMANCE.md](PERFORMANCE.md) and [member1_results.json](../benchmarks/member1_results.json).
+
+---
+
+## Historical smoke sample — 2,400 rows only
+
+All numbers in the following historical section refer to the bounded sample, not
+the full population. Synthetic test fixtures are never mixed with either dataset.
 
 ## Extraction and identity
 
@@ -174,8 +280,8 @@ final 2,400-row extraction. Initial sandbox DNS and local socket restrictions
 were resolved by approved network/socket access; no API outage is being hidden.
 
 Live data can change during and after extraction. The snapshot is not transactional;
-a full start-count comparison has not been measured because full ingestion was
-not run. Historical status, reopenings, unreported needs, reporting propensity,
+the historical smoke run did not measure a full start-count comparison; the full
+run is recorded above. Historical status, reopenings, unreported needs, reporting propensity,
 and actual satisfaction are not observable from these fields. The latest boundary
 release need not match 2025 boundaries. Unknown outcomes and sampling bias must
 remain visible in subsequent analyses.

@@ -1,8 +1,8 @@
 # Team guide: one pipeline, three contributors
 
 Each student owns three final visualizations. All nine must share the same data
-artifact, definitions, and filter result. No final visualization is implemented
-in Phase 1. Agree on complementary research questions before starting chart work.
+artifact, definitions, and filter result. Member 1’s three charts are implemented in Phase 2A. The other six charts and
+final models remain pending; preserve the assigned research questions.
 
 ## Clone and create an environment
 
@@ -186,7 +186,7 @@ such exceptions before integration; the default interface stays Plotly.
 6. Push your branch and open a PR when authorized by the team. Ask another student
    to review interpretation, usability, filtering, and integration.
 
-The repository is published on GitHub. Phase 1.5 work does not push or create remote PRs on your behalf. All
+The repository is published on GitHub. Engineering work does not push or create remote PRs on your behalf. All
 three students must review schema/target definition changes. Follow semantic
 versioning and explicit rebuild requirements in [PIPELINE.md](PIPELINE.md).
 
@@ -340,12 +340,82 @@ on aggregate results. Common filters remain exclusively in the shared layer.
 | PCA Cluster Explorer | District × complaint counts plus district outcome summaries; fit transformations/models later. |
 | Linked Time-Series Explorer | Exact created_day × agency or complaint_type aggregates with the same FilterSpec. |
 
-High-cardinality duration/time combinations may exceed the group limit. This phase
-does not implement a streaming survival estimator, density sampler, chart, or model;
-those designs must be reviewed before presenting full-population results. Do not
+High-cardinality duration/time combinations may exceed the group limit. Phase 2A supplies a streamed exact survival estimator (below); density sampling
+and final model designs still require review. Do not
 solve a group-limit error by silently limiting or sampling statistical input.
 
 Full-mode Streamlit uses bounded caches: eight catalog entries and 32 filtered
 summary/200-row preview entries, each with a ten-minute TTL and file fingerprint.
 It does not cache DuckDB connections or full request frames. See
 [PERFORMANCE.md](PERFORMANCE.md) for memory limits and benchmark evidence.
+
+## Phase 2A: Member 1 integration and examples
+
+Member 1 owns `visualizations/bivariate.py`, `survival.py`, `timeseries.py`, and the
+modular `member1.py` Streamlit section. Members 2 and 3 should follow the same
+separation: common FilterSpec → reviewed query helper → bounded aggregate → pure
+renderer. Keep global filters in app.py. Do not clone the sidebar or independently
+normalize categories/dates. The original DataFrame interface above remains useful
+for small, complete cohorts; never use full `load_data()` or a preview for population
+statistics. No additional dependency or schema migration is required.
+
+This example runs on the existing real full artifact. Using `dataset="demo"` is
+permitted for module development only: explicitly label outputs as a biased sample.
+The app intentionally reserves these population charts for full mode.
+
+```python
+from config.settings import DATA_DIR
+from pipeline.filters import FilterSpec
+from pipeline.query import ParquetQuery
+from pipeline.geography import load_geography
+from pipeline.chart_data import district_data, daily_data, survival_data
+from visualizations import bivariate, survival, timeseries
+
+query = ParquetQuery(dataset="full")
+filters = FilterSpec(borough="Brooklyn", start_date="2025-01-01", end_date="2025-03-31")
+geojson = load_geography(DATA_DIR / "geographic" / "community_districts.geojson")
+districts = district_data(query, filters, geojson)
+days = daily_data(query, filters)
+curves, outcomes = survival_data(query, filters)
+map_figure = bivariate.create_visualization(districts, geojson=geojson)
+km_figure = survival.create_visualization(curves, outcomes=outcomes)
+daily_figure = timeseries.create_visualization(days, rolling=True)
+assert districts.attrs["population"] == query.count(filters=filters)
+assert days.requests.sum() + days.attrs["unknown_created_day"] == query.count(filters=filters)
+assert outcomes.requests.sum() == query.count(filters=filters)
+```
+
+These same operations and reconciliation assertions are executed by
+`python -m benchmarks.member1_benchmark`. All three figure functions return Plotly
+Figures and are independent of Streamlit. Required schemas and attrs are listed
+in [CHART_METHODS.md](CHART_METHODS.md); do not substitute request-level frames.
+A Streamlit component renders an already-prepared figure as follows:
+
+```python
+import streamlit as st
+# map_figure is produced by the shared preparation example above.
+st.plotly_chart(map_figure, use_container_width=True, key="member1_districts")
+```
+
+The actual app calls `render_member1(path, filters, is_full=..., fingerprint=...)`
+after diagnostics with the **same** FilterSpec and artifact fingerprint. Preparation
+caches four small tables, not request records or DuckDB connections. Confidence and
+trend switches only rerender these tables; they do not define new global populations.
+Other chart owners should use distinct Streamlit keys. Preserve diagnostic table
+ordering and empty-state behavior when adding sections.
+
+For record-level work, continue using `query.preview(explicit_columns, filters=filters,
+limit=...)` only as a labeled preview. If another advanced chart requires a density
+or individual-point sample, agree on a sampling design and disclose it; do not
+use the ordered first 200 records as a representative sample. For exact grouped
+metrics, `closure_median_hours` now complements the existing mean/min/max and
+includes the valid denominator automatically. High-cardinality survival inputs
+have a dedicated streaming interface; do not bypass aggregate caps by requesting
+millions of DataFrame rows.
+
+Review: run pytest and Ruff; select full in Streamlit; follow the interaction checklist
+in [VISUALIZATION_SPEC.md](VISUALIZATION_SPEC.md). `benchmarks/local/member1/`
+contains reproducible HTML reviews after the benchmark command. Full Parquet/raw
+files and generated reviews remain ignored; share the immutable artifact separately
+with its SHA-256 and local quality report, or use the documented explicit ingestion
+commands to retrieve a fresh snapshot. Live-source values can change between runs.

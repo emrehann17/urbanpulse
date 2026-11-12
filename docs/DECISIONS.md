@@ -62,3 +62,19 @@ Dependency upgrades should rerun the full suite and regenerate constraints delib
 - Benchmark peak RSS on Linux uses VmHWM rather than getrusage, avoiding a parent's
   synthetic-generation high-water mark being inherited across process execution.
   Demo and synthetic results are reported separately, with no population claims.
+
+## Phase 2A — exact preparation with bounded display
+
+Use reviewed Parquet metrics and a context-managed ordered frequency stream for
+Member 1. Exact KM needs more than the ordinary aggregate group limit, so stream
+4,096 tuples at a time and compute every event/censor update. Bound plotted points
+by explicit display thinning; disclose omitted jumps while retaining exact values
+at plotted times. This avoids statistical sampling and an additional dependency.
+The daily median is exact in DuckDB and reports completed-observation denominators.
+
+Map tertiles describe relative current-cohort count/rate combinations, with 30 known
+labels as a display support threshold and all nine legend categories retained.
+Show 59 verified districts on a local blank MapLibre background; exclude/count JIAs
+and unmatchable requests. Do not force equal-valued districts into different bins.
+Population charts require full mode in the app because the demo is temporally biased.
+Keep diagnostics, stored schema and outcome/filter definitions unchanged.

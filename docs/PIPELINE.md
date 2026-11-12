@@ -1,7 +1,7 @@
 # Shared data pipeline
 
-Phase 1.5 extends the reusable local pipeline with isolated CI and direct Parquet queries. It does not implement the nine final
-visualizations or train models. The target runtime is Python 3.12.
+Phase 2A adds three Member 1 visualizations to the Phase 1.5 query architecture.
+Six further charts and model training remain pending. The target runtime is Python 3.12.
 
 ```mermaid
 flowchart LR
@@ -24,6 +24,12 @@ flowchart LR
     Q --> R[Exact aggregates + limited previews]
     R --> M
     R --> N
+    Q --> T[Stream ordered survival time counts]
+    R --> U[District and complete daily preparation]
+    T --> V[Exact KM with bounded display points]
+    U --> W[Pure Member 1 Plotly figures]
+    V --> W
+    W --> M
 ```
 
 ## Rerunning the pipeline
@@ -182,3 +188,6 @@ Phase 1.5 also validates resumed checkpoint audit counts and saved cursors again
 committed pages. It preserves existing scope, immutable raw records, timestamps,
 52-column schema, and historical outcome definitions. See [PERFORMANCE.md](PERFORMANCE.md)
 for disk sizing, row-group trade-offs, readiness review, and measured limits.
+
+Member 1 aggregate contracts, streaming computation and display bounds are specified
+in [CHART_METHODS.md](CHART_METHODS.md). No stored contract columns changed.

@@ -133,3 +133,15 @@ so those inputs are preserved, with query output converted back to the documente
 pandas timezone/ns dtype. Arbitrary future sub-microsecond timezone-aware input
 would be rounded/truncated by DuckDB; use Arrow/the original loader for exact such
 values. The stored Parquet timestamps are never rewritten by queries.
+
+### Phase 2A transient outputs
+
+The stored contract remains exactly **52 columns, version 1.0.0**. The only added
+registered query metric is `closure_median_hours` (nullable float, elapsed hours):
+exact SQL median of nonnull valid completed closure durations, with
+`valid_closures` and `requests` supplied automatically. Null for no valid closures;
+not an estimate incorporating still-open requests.
+
+District bin/support columns, KM probabilities/risk sets/pointwise intervals and
+daily rolling columns are transient renderer input schemas, fully defined in
+[CHART_METHODS.md](CHART_METHODS.md). They are not written back into request Parquet.

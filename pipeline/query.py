@@ -5,6 +5,7 @@ Run the offline quality command before serving a newly built artifact.
 """
 
 import tempfile
+from contextlib import contextmanager
 from pathlib import Path
 
 import duckdb
@@ -25,6 +26,7 @@ METRICS = {
     "censored": 'count(*) FILTER (WHERE "closure_event" = FALSE)',
     "unknown_outcomes": 'count(*) FILTER (WHERE "closure_event" IS NULL)',
     "closure_mean_hours": 'avg("closure_hours")',
+    "closure_median_hours": 'median("closure_hours")',
     "closure_min_hours": 'min("closure_hours")',
     "closure_max_hours": 'max("closure_hours")',
     "known_long_labels": 'count("is_long_closure")',
@@ -125,9 +127,11 @@ class ParquetQuery:
         stat = self.path.stat()
         return stat.st_mtime_ns, stat.st_size, stat.st_ino
 
-    def _execute(
+    @contextmanager
+    def _cursor(
         self, select: str, filters: FilterSpec | None = None, *, suffix: str = "", extra: tuple = ()
-    ) -> pd.DataFrame:
+    ):
+        """Own a bounded connection until its result has been consumed."""
         if self._stat() != self._fingerprint:
             raise ValueError("Dataset changed; create a new ParquetQuery for this snapshot")
         where, values = _where(filters)
@@ -144,13 +148,48 @@ class ParquetQuery:
                         "temp_directory": temporary,
                     }
                 ) as connection:
-                    result = connection.execute(sql, [str(self.path), *values, *extra]).df()
+                    yield connection.execute(sql, [str(self.path), *values, *extra])
             except duckdb.Error as exc:
                 raise ValueError(f"Parquet query failed: {exc}") from exc
         if self._stat() != self._fingerprint:
             raise ValueError("Dataset changed during query; retry against a stable snapshot")
+
+    def _execute(
+        self, select: str, filters: FilterSpec | None = None, *, suffix: str = "", extra: tuple = ()
+    ) -> pd.DataFrame:
+        with self._cursor(select, filters, suffix=suffix, extra=extra) as cursor:
+            result = cursor.df()
         result.attrs["urbanpulse"] = dict(self.provenance)
         return result
+
+    @contextmanager
+    def survival_counts(self, *, filters: FilterSpec | None = None):
+        """Yield an iterator of (borough, hours, events, censored), ordered by time.
+
+        Exact ties are aggregated in SQL. Only valid known outcomes enter the
+        life table. Consume inside ``with``; at most 4,096 tuples are fetched at
+        once, regardless of time cardinality. This bypasses the aggregate output
+        cap by streaming, never by truncating the statistical population.
+        """
+        select = (
+            '"borough", "observed_hours", '
+            'count(*) FILTER (WHERE "closure_event" = TRUE) AS events, '
+            'count(*) FILTER (WHERE "closure_event" = FALSE) AS censored'
+        )
+        suffix = (
+            'AND "closure_event" IS NOT NULL AND "observed_hours" >= 0 '
+            'AND isfinite("observed_hours") '
+            'GROUP BY "borough", "observed_hours" ORDER BY "borough", "observed_hours"'
+        )
+        # Parentheses matter: _where builds conjunctions only, so appending AND
+        # preserves every existing global predicate, including empty selections.
+        with self._cursor(select, filters, suffix=suffix) as cursor:
+
+            def rows():
+                while batch := cursor.fetchmany(4096):
+                    yield from batch
+
+            yield rows()
 
     def count(self, *, filters: FilterSpec | None = None) -> int:
         """Return the exact matching row count, with no sampling."""
@@ -200,7 +239,12 @@ class ParquetQuery:
         groups = _names(group_by, SCHEMA.names, label="group columns", empty=True)
         names = _names(metrics, METRICS, label="metrics")
         denominators = ["requests"]
-        if set(names) & {"closure_mean_hours", "closure_min_hours", "closure_max_hours"}:
+        if set(names) & {
+            "closure_mean_hours",
+            "closure_median_hours",
+            "closure_min_hours",
+            "closure_max_hours",
+        }:
             denominators.append("valid_closures")
         if "long_closure_rate" in names:
             denominators.extend(("known_long_labels", "long_closures"))
@@ -217,6 +261,7 @@ class ParquetQuery:
         for name in names:
             is_count = name not in {
                 "closure_mean_hours",
+                "closure_median_hours",
                 "closure_min_hours",
                 "closure_max_hours",
                 "long_closure_rate",
