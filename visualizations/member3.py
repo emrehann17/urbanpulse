@@ -1,4 +1,4 @@
-"""Streamlit integration for Member 3's persisted PCA cluster explorer."""
+"""Streamlit integration for Member 3's three assigned visualizations."""
 
 import json
 from pathlib import Path
@@ -7,10 +7,30 @@ import pandas as pd
 import streamlit as st
 
 from config.settings import ROOT
-from visualizations.member3_pca_clusters import create_visualization
+from pipeline.filters import FilterSpec
+from pipeline.query import ParquetQuery
+from visualizations.member3_bipartite import create_visualization as create_bipartite
+from visualizations.member3_parallel_coordinates import (
+    create_visualization as create_parallel_coordinates,
+)
+from visualizations.member3_pca_clusters import create_visualization as create_pca_clusters
 
 CLUSTERS_PATH = ROOT / "ml" / "results" / "district_clusters.csv"
 METADATA_PATH = ROOT / "ml" / "results" / "kmeans_metrics.json"
+
+
+@st.cache_data(max_entries=16, ttl=600, show_spinner="Preparing agency network…")
+def prepare_agency_complaints(path: str, fingerprint: tuple, filters: FilterSpec) -> pd.DataFrame:
+    """Return exact agency × complaint counts for the shared filtered population."""
+    query = ParquetQuery(path)
+    stat = query.path.stat()
+    if (str(query.path), stat.st_mtime_ns, stat.st_size) != fingerprint:
+        raise ValueError("Dataset changed; refresh the application")
+    return query.aggregate(
+        ("agency", "complaint_type"),
+        metrics=("requests",),
+        filters=filters,
+    )
 
 
 @st.cache_data(max_entries=4, show_spinner="Loading the reviewed PCA cluster results…")
@@ -36,9 +56,32 @@ def load_cluster_results(
     return clusters, metadata
 
 
-def render_member3_clusters(*, is_full: bool) -> None:
-    """Render the fixed full-year model without applying dashboard filters."""
-    st.header("Member 3 · PCA Cluster Explorer")
+def render_member3_bipartite(path: Path, filters: FilterSpec, *, fingerprint: tuple) -> None:
+    """Render the assigned bipartite network from the common filtered cohort."""
+    st.header("Member 3 · Agency × Complaint Bipartite Network")
+    try:
+        aggregates = prepare_agency_complaints(str(path), fingerprint, filters)
+        st.plotly_chart(
+            create_bipartite(
+                aggregates,
+                subtitle="Current shared filters · full 2025 source",
+            ),
+            use_container_width=True,
+            key="member3_agency_complaint_bipartite",
+        )
+        st.caption(
+            "Exact counts use the same borough, complaint, agency, and creation-date filters "
+            "as the application. For readability, the display retains the top 8 agencies, top "
+            "12 complaint types, and strongest 40 links. The figure reports their coverage of "
+            "all filtered requests; line width encodes exact request count."
+        )
+    except (OSError, ValueError) as exc:
+        st.error(f"Member 3 bipartite network could not be prepared: {exc}")
+
+
+def render_member3_models(*, is_full: bool) -> None:
+    """Render the two fixed full-year district views without applying dashboard filters."""
+    st.header("Member 3 · District profiles and PCA clusters")
     if not is_full:
         st.info(
             "Select the full dataset to view the reviewed 2025 PCA cluster model. "
@@ -55,13 +98,27 @@ def render_member3_clusters(*, is_full: bool) -> None:
             str(METADATA_PATH),
             (json_stat.st_mtime_ns, json_stat.st_size),
         )
-        figure = create_visualization(
+        parallel_figure = create_parallel_coordinates(
             clusters,
             metadata,
             subtitle="Entire verified 2025 district cohort",
         )
         st.plotly_chart(
-            figure,
+            parallel_figure,
+            use_container_width=True,
+            key="member3_parallel_coordinates",
+        )
+        st.caption(
+            "Parallel axes retain raw district-profile units and support interactive brushing. "
+            "Sidebar filters do not alter these saved full-year profiles."
+        )
+        pca_figure = create_pca_clusters(
+            clusters,
+            metadata,
+            subtitle="Entire verified 2025 district cohort",
+        )
+        st.plotly_chart(
+            pca_figure,
             use_container_width=True,
             key="member3_pca_clusters",
         )
@@ -75,4 +132,4 @@ def render_member3_clusters(*, is_full: bool) -> None:
             "requests."
         )
     except (OSError, TypeError, ValueError) as exc:
-        st.error(f"Member 3 PCA clusters could not be prepared: {exc}")
+        st.error(f"Member 3 district model views could not be prepared: {exc}")

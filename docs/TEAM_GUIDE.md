@@ -1,8 +1,11 @@
 # Team guide: one pipeline, three contributors
 
 Each student owns three final visualizations. All nine must share the same data
-artifact, definitions, and filter result. Member 1’s three charts are implemented in Phase 2A. The other six charts and
-final models remain pending; preserve the assigned research questions.
+artifact and definitions. Member 1’s three charts and Member 3's three charts are
+implemented. Member 3's bipartite network uses the common filter result; its two
+persisted district-model views remain explicitly fixed to the reviewed full-year
+solution. Member 2's three charts remain pending; preserve the assigned research
+questions.
 
 ## Clone and create an environment
 
@@ -419,3 +422,15 @@ contains reproducible HTML reviews after the benchmark command. Full Parquet/raw
 files and generated reviews remain ignored; share the immutable artifact separately
 with its SHA-256 and local quality report, or use the documented explicit ingestion
 commands to retrieve a fresh snapshot. Live-source values can change between runs.
+
+## Phase 3B: Member 3 integration
+
+Member 3 owns `member3_bipartite.py`, `member3_parallel_coordinates.py`, and
+`member3_pca_clusters.py`; `member3.py` provides their Streamlit integration.
+The bipartite network consumes an exact, bounded agency × complaint aggregate from
+the app-owned `FilterSpec`. Parallel Coordinates and PCA consume only the reviewed
+59-row ML export and companion metadata. They never read request previews, retrain
+models, or imply that sidebar filters changed the saved full-year solution.
+
+Complete methods, measured findings, limitations, HTML review paths, and presentation
+notes are in [MEMBER3_VISUALIZATIONS.md](MEMBER3_VISUALIZATIONS.md).

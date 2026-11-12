@@ -1,11 +1,35 @@
-# Project status — Phase 2A.1 Member 1 presentation handoff
+# Project status — Member 1 and Member 3 visualization integration
 
-Updated November 11, 2026. Member 1's **three advanced interactive charts are
-implemented locally** on the shared pipeline. Six charts, final K-Means/logistic
-regression models, report and presentation remain pending. The full course
-assignment is not complete. Repository: [emrehann17/urbanpulse](https://github.com/emrehann17/urbanpulse).
+Updated November 12, 2026. Member 1's and Member 3's **six advanced interactive
+charts are implemented locally** on the shared pipeline. Reproducible K-Means and
+Logistic Regression baselines are complete. Member 2's three charts, final report,
+and presentation remain pending. The full course assignment is not complete.
+Repository: [emrehann17/urbanpulse](https://github.com/emrehann17/urbanpulse).
 Work began on clean branch `viz/member1-geography-waiting`. No commits, pushes,
 remote branches, CI runs or dataset rebuilds/downloads were initiated in Phase 2A.
+
+## Phase 3B Member 3 update
+
+- Assigned final charts: agency × complaint Bipartite Network, district Parallel
+  Coordinates, and PCA Cluster Explorer. The earlier heatmap remains supplemental.
+- Bipartite data comes from an exact shared-filter DuckDB aggregate. The all-borough
+  2025 review shows 2,229,352 of 3,651,639 requests (61.1%) through twelve displayed
+  links. The graph discloses top-category and maximum-edge display rules.
+- Parallel Coordinates and PCA use the persisted 59-district K-Means export without
+  retraining. Parallel axes retain raw units; PCA uses saved coordinates explaining
+  77.43% of processed variance. Cluster IDs are nominal and never rankings.
+- Streamlit full mode now renders three Member 1 plus three Member 3 charts. An empty
+  shared filter suppresses cohort charts but retains the two explicitly fixed
+  district-model views. Demo mode retains diagnostics without population charts.
+- Browser review found and repaired a Parallel Coordinates title/axis/color-key
+  collision. Bipartite and PCA layouts were also reviewed from local HTML exports.
+- Latest Windows/Python 3.12 checks: **235 tests passed**, Ruff and format passed,
+  and `pip check` reported no broken requirements. Five upstream ML/joblib warnings
+  remain visible. No model was retrained and no data artifact was committed.
+
+See [MEMBER3_VISUALIZATIONS.md](MEMBER3_VISUALIZATIONS.md) for the complete Member 3
+specification, findings, limitations, review files, and presentation outline. The
+remaining sections preserve the earlier detailed Member 1 handoff evidence.
 
 ## Phase 2A.1 visual polish
 

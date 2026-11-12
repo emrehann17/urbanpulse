@@ -10,7 +10,7 @@ from pipeline.filters import FilterSpec
 from pipeline.loader import data_path
 from pipeline.query import ParquetQuery
 from visualizations.member1 import render_member1
-from visualizations.member3 import render_member3_clusters
+from visualizations.member3 import render_member3_bipartite, render_member3_models
 
 PREVIEW_COLUMNS = (
     "unique_key",
@@ -57,7 +57,7 @@ def main() -> None:
     """Render a minimal integration app without making any network requests."""
     st.set_page_config(page_title="UrbanPulse", layout="wide")
     st.title("UrbanPulse — Where Do Public Service Requests Wait?")
-    st.caption("Geography, waiting times, daily demand, and district clusters · CEN445")
+    st.caption("Geography, waiting times, service networks, and district profiles · CEN445")
     dataset = st.sidebar.selectbox("Dataset", ["demo", "smoke", "full"], key="dataset")
     try:
         path = data_path(dataset)
@@ -153,7 +153,9 @@ def main() -> None:
             is_full=provenance["mode"] == "full",
             fingerprint=fingerprint,
         )
-    render_member3_clusters(is_full=provenance["mode"] == "full")
+        if provenance["mode"] == "full":
+            render_member3_bipartite(path, filters, fingerprint=fingerprint)
+    render_member3_models(is_full=provenance["mode"] == "full")
 
 
 if __name__ == "__main__":

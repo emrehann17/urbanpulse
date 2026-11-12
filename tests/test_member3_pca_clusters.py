@@ -6,8 +6,11 @@ import numpy as np
 import pandas as pd
 import pytest
 
+from pipeline.filters import FilterSpec
 from pipeline.geography import DISTRICT_CODES
-from visualizations.member3 import load_cluster_results
+from pipeline.loader import data_path
+from pipeline.query import ParquetQuery
+from visualizations.member3 import load_cluster_results, prepare_agency_complaints
 from visualizations.member3_pca_clusters import CLUSTER_COLORS, create_visualization
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -134,3 +137,17 @@ def test_streamlit_loader_reads_reviewed_results_and_checks_fingerprints():
             str(METADATA_PATH),
             (metadata_stat.st_mtime_ns, metadata_stat.st_size),
         )
+
+
+def test_streamlit_network_uses_shared_filtered_population():
+    path = data_path("demo")
+    stat = path.stat()
+    fingerprint = (str(path.resolve()), stat.st_mtime_ns, stat.st_size)
+    filters = FilterSpec(borough=["Brooklyn"])
+
+    aggregates = prepare_agency_complaints(str(path), fingerprint, filters)
+
+    assert set(aggregates) == {"agency", "complaint_type", "requests"}
+    assert aggregates.requests.sum() == ParquetQuery(path).count(filters=filters)
+    with pytest.raises(ValueError, match="Dataset changed"):
+        prepare_agency_complaints(str(path), (str(path.resolve()), 0, 0), filters)
