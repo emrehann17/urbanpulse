@@ -1,0 +1,312 @@
+{
+  "selected_k": 2,
+  "silhouette": 0.3267476493415091,
+  "cluster_sizes": [
+    36,
+    23
+  ],
+  "candidates": [
+    {
+      "k": 2,
+      "silhouette": 0.3267476493415091,
+      "cluster_sizes": [
+        23,
+        36
+      ],
+      "accepted": true,
+      "inertia": 149.19483316634341
+    },
+    {
+      "k": 3,
+      "silhouette": 0.26855475866467465,
+      "cluster_sizes": [
+        21,
+        16,
+        22
+      ],
+      "accepted": true,
+      "inertia": 118.55052917605028
+    },
+    {
+      "k": 4,
+      "silhouette": 0.2648660722140918,
+      "cluster_sizes": [
+        20,
+        22,
+        16,
+        1
+      ],
+      "accepted": false,
+      "inertia": 100.48579430507938
+    },
+    {
+      "k": 5,
+      "silhouette": 0.21937817403002308,
+      "cluster_sizes": [
+        14,
+        16,
+        19,
+        1,
+        9
+      ],
+      "accepted": false,
+      "inertia": 85.97650529181774
+    },
+    {
+      "k": 6,
+      "silhouette": 0.22369186966531449,
+      "cluster_sizes": [
+        8,
+        17,
+        13,
+        14,
+        6,
+        1
+      ],
+      "accepted": false,
+      "inertia": 75.53043630570198
+    }
+  ],
+  "selection_rule": "Maximum silhouette among K=2..6 with every cluster >=3; ties: lower K",
+  "semantics": "Descriptive profiles, not rankings or causal conclusions; IDs are arbitrary",
+  "seed": 2025,
+  "n_init": 50,
+  "features": [
+    "complaint_share_0",
+    "complaint_share_1",
+    "complaint_share_2",
+    "complaint_share_3",
+    "complaint_share_4",
+    "complaint_share_5",
+    "complaint_share_6",
+    "complaint_share_7",
+    "complaint_share_other",
+    "log1p_request_count",
+    "log1p_median_closure_hours",
+    "long_closure_rate"
+  ],
+  "min_support": 30,
+  "missing_feature_counts": {
+    "complaint_share_0": 0,
+    "complaint_share_1": 0,
+    "complaint_share_2": 0,
+    "complaint_share_3": 0,
+    "complaint_share_4": 0,
+    "complaint_share_5": 0,
+    "complaint_share_6": 0,
+    "complaint_share_7": 0,
+    "complaint_share_other": 0,
+    "log1p_request_count": 0,
+    "log1p_median_closure_hours": 0,
+    "long_closure_rate": 0
+  },
+  "preprocessing": "log1p counts/durations; median imputation with missing indicators; standardization; each of four blocks weighted by 1/sqrt(block columns)",
+  "processed_features": [
+    "complaint_share_0",
+    "complaint_share_1",
+    "complaint_share_2",
+    "complaint_share_3",
+    "complaint_share_4",
+    "complaint_share_5",
+    "complaint_share_6",
+    "complaint_share_7",
+    "complaint_share_other",
+    "log1p_request_count",
+    "log1p_median_closure_hours",
+    "long_closure_rate"
+  ],
+  "block_weights": [
+    0.3333333333333333,
+    0.3333333333333333,
+    0.3333333333333333,
+    0.3333333333333333,
+    0.3333333333333333,
+    0.3333333333333333,
+    0.3333333333333333,
+    0.3333333333333333,
+    0.3333333333333333,
+    1.0,
+    1.0,
+    1.0
+  ],
+  "imputation_medians": [
+    0.13508890280923241,
+    0.10076516866041599,
+    0.06882844684285336,
+    0.04153828597512268,
+    0.037678607545239315,
+    0.02666053158663996,
+    0.018546625698737645,
+    0.014203592814371257,
+    0.44953212370192874,
+    10.936369499018918,
+    2.0870169424064553,
+    0.17936306147728012
+  ],
+  "pca_explained_variance_ratio": [
+    0.4969544872287066,
+    0.27733172335146516
+  ],
+  "pca_input": "Identical imputed, standardized, block-weighted matrix used by K-Means",
+  "cluster_profiles": [
+    {
+      "cluster_id": 0,
+      "districts": [
+        "101",
+        "102",
+        "103",
+        "104",
+        "105",
+        "208",
+        "210",
+        "211",
+        "212",
+        "301",
+        "302",
+        "304",
+        "305",
+        "306",
+        "307",
+        "310",
+        "311",
+        "312",
+        "313",
+        "315",
+        "318",
+        "401",
+        "402",
+        "403",
+        "404",
+        "405",
+        "406",
+        "407",
+        "408",
+        "409",
+        "410",
+        "411",
+        "412",
+        "413",
+        "414",
+        "502"
+      ],
+      "district_count": 36,
+      "request_count": 2225959,
+      "median_district_request_count": 56248.5,
+      "median_district_completed_closure_hours": 4.1154166666666665,
+      "pooled_known_long_labels": 2219391,
+      "pooled_long_closure_rate": 0.14530021974496607,
+      "mean_district_complaint_shares": {
+        "complaint_share_0": 0.20391569420154776,
+        "complaint_share_1": 0.1028422476988804,
+        "complaint_share_2": 0.05490201884392115,
+        "complaint_share_3": 0.0616403968981393,
+        "complaint_share_4": 0.03529057262024345,
+        "complaint_share_5": 0.020867793383208256,
+        "complaint_share_6": 0.020635226110041687,
+        "complaint_share_7": 0.011259723638744711,
+        "complaint_share_other": 0.4886463266052734
+      }
+    },
+    {
+      "cluster_id": 1,
+      "districts": [
+        "106",
+        "107",
+        "108",
+        "109",
+        "110",
+        "111",
+        "112",
+        "201",
+        "202",
+        "203",
+        "204",
+        "205",
+        "206",
+        "207",
+        "209",
+        "303",
+        "308",
+        "309",
+        "314",
+        "316",
+        "317",
+        "501",
+        "503"
+      ],
+      "district_count": 23,
+      "request_count": 1370983,
+      "median_district_request_count": 55674.0,
+      "median_district_completed_closure_hours": 18.436527777777776,
+      "pooled_known_long_labels": 1368304,
+      "pooled_long_closure_rate": 0.20834185970369157,
+      "mean_district_complaint_shares": {
+        "complaint_share_0": 0.09661594943162195,
+        "complaint_share_1": 0.11312657683422915,
+        "complaint_share_2": 0.1331131093711054,
+        "complaint_share_3": 0.026736396301849808,
+        "complaint_share_4": 0.06403661851939234,
+        "complaint_share_5": 0.05107372988313012,
+        "complaint_share_6": 0.02435029999066865,
+        "complaint_share_7": 0.031194065674470858,
+        "complaint_share_other": 0.45975325399353173
+      }
+    }
+  ],
+  "model_version": "phase3a-v1",
+  "source": {
+    "parquet_sha256": "8b2c29b7e860a344f29e53834dc36093feb3aa1bc873a69a2f00e9184810821a",
+    "rows": 3652435,
+    "columns": 52,
+    "provenance": {
+      "schema_version": "1.0.0",
+      "mode": "full",
+      "source_url": "https://data.cityofnewyork.us/d/erm2-nwe9",
+      "extraction_cutoff": "2026-11-11T13:05:11.985204+00:00",
+      "extraction_finished": "2026-11-11T13:38:17.429688+00:00",
+      "sampling": "none",
+      "manifest_sha256": "e6a4e63dada611ad0a7f411bee45c509ebab05d88afa3c10f67772b455b7ec86",
+      "built_at": "2026-11-11T13:38:24.988611+00:00",
+      "geography_sha256": "b67789a0247801752d9f0f3048cc86119562962216f2f36d151c1fb810561b9f"
+    },
+    "quality_report_sha256": "f969e68ee0bf09a5c4d2d85e1dd0b3309787d117de470709bacd7b797a3740df"
+  },
+  "run_started_utc": "2026-11-12T17:08:32.895683+00:00",
+  "packages": {
+    "scikit-learn": "1.7.2",
+    "scipy": "1.16.3",
+    "numpy": "2.5.4",
+    "pandas": "2.2.3",
+    "pyarrow": "19.0.1",
+    "duckdb": "1.4.5",
+    "joblib": "1.5.2",
+    "threadpoolctl": "3.6.0"
+  },
+  "python": "3.12.3",
+  "platform": "Linux",
+  "memory_policy": {
+    "duckdb_mb": 512,
+    "duckdb_threads": 1,
+    "numerical_threads": 1,
+    "note": "DuckDB buffer limit is not a total process RAM limit; projected bounded samples only; no dense request-level one-hot matrix"
+  },
+  "verification_seconds": 1.6396783370000776,
+  "complaint_categories": {
+    "complaint_share_0": "Illegal Parking",
+    "complaint_share_1": "Noise - Residential",
+    "complaint_share_2": "HEAT/HOT WATER",
+    "complaint_share_3": "Blocked Driveway",
+    "complaint_share_4": "Noise - Street/Sidewalk",
+    "complaint_share_5": "UNSANITARY CONDITION",
+    "complaint_share_6": "Water System",
+    "complaint_share_7": "PLUMBING"
+  },
+  "geography_counts": {
+    "joint_interest_area": 15408,
+    "ordinary": 3596942,
+    "unmatched_or_invalid": 40085
+  },
+  "window": "Entire verified 2025 source scope, including invalid dates in volume",
+  "elapsed_seconds": 2.8585943449998013,
+  "process_peak_rss_mib": 510.9296875
+}
