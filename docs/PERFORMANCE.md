@@ -1,4 +1,4 @@
-# Performance and full-ingestion readiness — Phase 1.5
+# Performance — Phase 1.5 baseline and Phase 2A full data
 
 ## Architecture and scope
 
@@ -58,7 +58,7 @@ on Windows memory is recorded as unavailable rather than guessed. This is not a
 per-query allocation measurement or a process RAM limit. JSON reports include
 baseline peaks, setup times, minimum times, versions, and row-group metadata.
 
-## Measured results
+## Historical Phase 1.5 measured results
 
 Measured on November 11, 2026: Ubuntu/WSL2 Linux x86_64, Python 3.12.3,
 pandas 2.2.3, PyArrow 19.0.1, DuckDB 1.4.5; 12 logical CPUs reported. DuckDB
@@ -105,7 +105,8 @@ memory on this synthetic experiment. This is evidence for workload-based API
 selection, **not a claim that DuckDB is always faster**. The synthetic data has
 only the demo's category/text diversity, compresses readily, and has ten 10,000-row
 groups; the demo has 24 100-row groups. These differences also affect timings.
-Neither experiment verifies performance on millions of real 2025 requests,
+Those Phase 1.5 experiments did not verify performance on millions of real requests;
+Phase 2A measurements below now cover the three Member 1 workloads. Neither phase verifies
 complex high-cardinality aggregates, concurrent users, or deployment hardware.
 
 ## Memory and deployment guidance
@@ -154,7 +155,7 @@ exercise the full code path without live API dependency.
 | Atomic output | Completed Parquet replaces target after writer closes; failed-build preservation test. | Sidecar report is a separate atomic write; compare checksum after a crash. |
 | Metadata and cutoff | Raw schema, page retrieval timestamps, original extraction-start cutoff, manifest and geographic hashes retained. | Long resumed runs combine later states with the original cutoff; after-cutoff outcomes remain unknown. |
 | Quality reporting | Raw/clean missingness, exclusions, flags, outcome invariants, joins, source-count difference, final uniqueness. | Equal start/end counts do not prove a transactional snapshot. |
-| Query access | Footer validation, projection/predicate pushdown, exact aggregates and bounded previews; parity tests. | Millions of real records and concurrent-user behavior remain unbenchmarked. |
+| Query access | Footer validation, projection/predicate pushdown, exact aggregates and bounded previews; parity tests. | Phase 2A chart timings are below; concurrent-user behavior remains unbenchmarked. |
 
 ### Disk and row groups
 
@@ -201,3 +202,67 @@ and read/connect timeouts, but several attempts can take minutes per page. Keep
 logs and review source_count_at_start versus downloaded count. Do not run concurrent
 writers, and do not treat daily-changing API pages as a transactionally consistent
 snapshot. Preserve the original cutoff on resume rather than relabelling outcomes.
+
+## Phase 2A: measured real full-data chart workloads
+
+The earlier Phase 1.5 sections are historical. The full extraction now exists
+locally and has passed streaming validation; it was **not** downloaded or rebuilt
+by Phase 2A. Details: [DATA_QUALITY.md](DATA_QUALITY.md).
+
+Reproduce without ingestion:
+
+```text
+python -m benchmarks.member1_benchmark --dataset full --output benchmarks/local/member1.json
+```
+
+The recorded run is [member1_results.json](../benchmarks/member1_results.json),
+2026-11-11T14:55:20.712942+00:00, Linux/WSL2 x86_64, Python 3.12.3, DuckDB 1.4.5,
+two query threads, 512 MB buffer-manager setting. Parquet: **327,286,299 bytes**,
+**737 row groups**, **3,652,435 genuine requests**. No synthetic expansion or
+request sampling was used. Three repetitions per workload, fresh embedded
+connections, no Streamlit cache; OS caches and host activity are uncontrolled.
+Timing includes query and helper transformations, excludes figure construction,
+HTML serialization, filter-option loading and the app's diagnostic queries.
+
+| Cohort | District preparation median ms | Daily counts/median/calendar median ms | Exact streamed KM preparation median ms |
+| --- | ---: | ---: | ---: |
+| All requests, no filters (3,652,435) | 157.077 | 240.319 | 3,981.067 |
+| Brooklyn, Jan 1–Mar 31 inclusive (260,034) | 167.939 | 131.955 | 493.830 |
+
+Unrestricted outputs: **59** district rows, **365** calendar rows and **2,977** KM
+plotting rows. KM processed **1,287,252** distinct borough/time groups; 2,972 retained
+time points plus five origins were stored. All times contribute to exact estimates
+and pointwise intervals; omitted display steps are disclosed in the UI. Filtered
+Brooklyn Q1 outputs: 59 district rows, 90 days and 978 KM points. Population
+reconciliation assertions passed for both cohorts and all three preparations.
+
+Whole benchmark-process peak RSS was **373.91 MiB**, measured using Linux
+`/proc/self/status` VmHWM. This includes imports, query operations, all rendering
+and six HTML exports; it is not a per-query memory attribution, a cold-start
+baseline comparison, or a strict upper memory guarantee. The initial exploratory
+run overlapped full validation and was slower (0.557 / 0.623 / 4.173 seconds);
+benchmark repetitions above were measured separately. Browser/WebGL memory and
+concurrent-user capacity have not been measured. The new measurements cover these
+specific workloads only, not all nine future charts or arbitrary full-data SQL.
+
+The daily exact median aggregate keeps observations in engine state; returned
+results are small but engine intermediates are not bounded by 365. Survival groups
+and sorts high-cardinality times within DuckDB, then fetches batches of 4,096 tuples.
+Its Python estimator retains at most 1,024 points per borough by deterministic
+**display** thinning. It does not collect millions of observations in Pandas.
+The old 100,000-group cap remains for ordinary aggregate DataFrames; the dedicated
+context-managed stream avoids truncating survival input. The 52-column artifact,
+row groups, preprocessing and historical outcome definitions are unchanged.
+
+Streamlit caches four small chart tables with eight entries and a ten-minute TTL,
+using FilterSpec plus Parquet/geography fingerprints. Confidence/trend controls
+rerender cached aggregates. Full-request DataFrames and database connections are
+not cached. First-time filters still trigger exact scans; budgets multiply across
+concurrent sessions. Keep snapshots immutable, preserve spill space, and benchmark
+on the deployment host before increasing concurrency or launching all nine charts
+at once. Geometry is local and needs no map key or tile service.
+
+The benchmark writes ignored HTML reviews under `benchmarks/local/member1/`, with
+embedded Plotly JavaScript and explicit limitations. Their size is dominated by
+Plotly/geometry, not raw request rows. See [VISUALIZATION_SPEC.md](VISUALIZATION_SPEC.md)
+for the browser review procedure. No native Windows or macOS benchmark is claimed.

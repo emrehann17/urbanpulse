@@ -9,13 +9,12 @@ UrbanPulse asks: Which service requests take longest to close? How do service
 profiles differ across boroughs and community districts? How much apparent delay
 reflects still-open requests, request mix, or incomplete records?
 
-**Current phase: Phase 1.5 — isolated CI and scalable Parquet access.** The repository
-provides ingestion, cleaning, closure/censoring features, geographic joins,
-Parquet contracts, universal filters, DuckDB queries, quality reporting, tests, and a small
-Streamlit app. Final charts and model training are not implemented. The final
-course project still needs nine distinct visualizations (at least six advanced),
-meaningful interactions, two ML algorithms as the implementation goal, a one-page
-English report, and an English presentation. Diagnostics do not count as final charts.
+**Current phase: Phase 2A — Member 1 advanced visualizations.** Three interactive
+charts now use the shared filtered Parquet architecture: a bivariate community
+district map, borough Kaplan–Meier curves, and a linked daily time-series explorer.
+The pipeline, 52-column contract, diagnostics, and Phase 1.5 query APIs remain intact.
+The other six visualizations, two final ML models, report, and presentation remain
+pending. Diagnostics do not count as final charts.
 
 ## Data and scope
 
@@ -30,8 +29,9 @@ explained in [SOURCES.md](docs/SOURCES.md).
 
 `data/demo/requests.parquet` is a **real, bounded sample**, selected by the earliest
 200 creation timestamps in each calendar month (lexical ID tie-break). It is not representative in a
-statistical sense. Counts and rates describe only selected records. Full 2025
-extraction has not been run. Measured counts and exclusions are in
+statistical sense. Counts and rates describe only selected records. The local full 2025
+extraction contains **3,652,435 real requests**; its large Parquet remains ignored by Git.
+Measured full and sample counts are distinguished in
 [DATA_QUALITY.md](docs/DATA_QUALITY.md) and the adjacent machine-readable quality
 report. The app defaults explicitly to the demo; it never substitutes it for full data.
 
@@ -133,7 +133,7 @@ contract remain unchanged.
 from pipeline.filters import FilterSpec
 from pipeline.query import ParquetQuery
 
-query = ParquetQuery(dataset="demo")  # choose "full" after full ingestion/build/audit
+query = ParquetQuery(dataset="demo")  # choose "full" for the locally validated full artifact
 filters = FilterSpec(borough=["Brooklyn", "Queens"], start_date="2025-01-01", end_date="2025-12-31")
 count = query.count(filters=filters)
 by_day = query.aggregate("created_day", filters=filters)
@@ -190,7 +190,7 @@ urbanpulse/
 │   ├── demo/               # small real sample + provenance + measured quality
 │   ├── geographic/         # validated GeoJSON + retrieval metadata
 │   └── metadata/           # source schema snapshots
-├── visualizations/         # integration instructions; final charts pending
+├── visualizations/         # Member 1 map, survival, time series, shared app section
 ├── ml/                     # design reference; trained models pending
 ├── tests/                  # deterministic offline tests and app integration
 ├── benchmarks/             # reproducible script and small measured JSON reports
@@ -233,3 +233,21 @@ for population inference or model training.
 - [Project status and remaining work](docs/PROJECT_STATUS.md)
 
 - [Query performance and full-ingestion readiness](docs/PERFORMANCE.md)
+
+## Member 1 visualizations and review
+
+Run `python -m streamlit run app.py`, choose **full**, and use the shared sidebar.
+The demo retains diagnostics; its biased first-of-month records are not shown as
+population trends. The full artifact must exist locally; startup never ingests it.
+The map uses the committed validated GeoJSON with a blank MapLibre background;
+no external tile service or API key is required.
+
+```text
+python -m benchmarks.member1_benchmark --dataset full --output benchmarks/local/member1.json
+```
+
+This queries existing data, measures the three workloads, and writes six standalone
+HTML files under `benchmarks/local/member1/` for all requests and Brooklyn Q1.
+Open them in a browser to review map hover/zoom, the 3×3 key, survival legend toggles,
+and linked daily axes. See [visualization specifications](docs/VISUALIZATION_SPEC.md),
+[statistical methods](docs/CHART_METHODS.md), and [performance](docs/PERFORMANCE.md).

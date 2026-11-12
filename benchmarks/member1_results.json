@@ -1,0 +1,215 @@
+{
+  "measured_at": "2026-11-11T14:55:20.712942+00:00",
+  "platform": "Linux-6.18.58.1-microsoft-standard-WSL2-x86_64-with-glibc2.39",
+  "python": "3.12.3",
+  "duckdb": "1.4.5",
+  "dataset": "full",
+  "provenance": {
+    "schema_version": "1.0.0",
+    "mode": "full",
+    "source_url": "https://data.cityofnewyork.us/d/erm2-nwe9",
+    "extraction_cutoff": "2026-11-11T13:05:11.985204+00:00",
+    "extraction_finished": "2026-11-11T13:38:17.429688+00:00",
+    "sampling": "none",
+    "manifest_sha256": "e6a4e63dada611ad0a7f411bee45c509ebab05d88afa3c10f67772b455b7ec86",
+    "built_at": "2026-11-11T13:38:24.988611+00:00",
+    "geography_sha256": "b67789a0247801752d9f0f3048cc86119562962216f2f36d151c1fb810561b9f"
+  },
+  "rows": 3652435,
+  "bytes": 327286299,
+  "row_groups": 737,
+  "repeats": 3,
+  "threads": 2,
+  "memory_limit_mb": 512,
+  "cohorts": {
+    "all_requests": {
+      "filters": {
+        "borough": null,
+        "complaint_type": null,
+        "agency": null,
+        "start_date": null,
+        "end_date": null
+      },
+      "rows": 3652435,
+      "timings": {
+        "district": {
+          "runs_ms": [
+            153.6692959998618,
+            161.12924099979864,
+            157.07741199912562
+          ],
+          "median_ms": 157.07741199912562
+        },
+        "daily": {
+          "runs_ms": [
+            266.16298699991603,
+            240.3187789986987,
+            232.87416300081532
+          ],
+          "median_ms": 240.3187789986987
+        },
+        "survival": {
+          "runs_ms": [
+            3981.067176999204,
+            3475.8851989990944,
+            4048.0007419992035
+          ],
+          "median_ms": 3981.067176999204
+        }
+      },
+      "district": {
+        "excluded": {
+          "joint_interest_area": 15408,
+          "unmatched": 40085
+        },
+        "cuts": {
+          "requests": [
+            51993.0,
+            62429.666666666664
+          ],
+          "long_closure_rate": [
+            0.16313050463147974,
+            0.19338405914193668
+          ]
+        },
+        "min_known": 30,
+        "population": 3652435
+      },
+      "daily": {
+        "unknown_created_day": 796,
+        "rolling_days": 7,
+        "population": 3652435
+      },
+      "survival": {
+        "input_time_groups": 1287252,
+        "plotted_time_groups": 2972,
+        "display_thinned": true,
+        "max_points": 1024
+      },
+      "output_rows": {
+        "district": 59,
+        "daily": 365,
+        "survival": 2977
+      },
+      "outcomes": [
+        {
+          "borough": "Bronx",
+          "closed": 831435,
+          "censored": 4011,
+          "unknown_outcomes": 1081,
+          "requests": 836527
+        },
+        {
+          "borough": "Brooklyn",
+          "closed": 1062211,
+          "censored": 14126,
+          "unknown_outcomes": 1996,
+          "requests": 1078333
+        },
+        {
+          "borough": "Manhattan",
+          "closed": 708885,
+          "censored": 11129,
+          "unknown_outcomes": 5046,
+          "requests": 725060
+        },
+        {
+          "borough": "Queens",
+          "closed": 859173,
+          "censored": 16374,
+          "unknown_outcomes": 2667,
+          "requests": 878214
+        },
+        {
+          "borough": "Staten Island",
+          "closed": 131895,
+          "censored": 2116,
+          "unknown_outcomes": 290,
+          "requests": 134301
+        }
+      ]
+    },
+    "brooklyn_q1": {
+      "filters": {
+        "borough": [
+          "Brooklyn"
+        ],
+        "complaint_type": null,
+        "agency": null,
+        "start_date": "2025-01-01",
+        "end_date": "2025-03-31"
+      },
+      "rows": 260034,
+      "timings": {
+        "district": {
+          "runs_ms": [
+            197.858384999563,
+            167.93930599851592,
+            160.46487200037518
+          ],
+          "median_ms": 167.93930599851592
+        },
+        "daily": {
+          "runs_ms": [
+            152.1859280001081,
+            131.95455399909406,
+            128.318674998809
+          ],
+          "median_ms": 131.95455399909406
+        },
+        "survival": {
+          "runs_ms": [
+            488.19269799969334,
+            546.2809270011348,
+            493.82972300008987
+          ],
+          "median_ms": 493.82972300008987
+        }
+      },
+      "district": {
+        "excluded": {
+          "joint_interest_area": 273,
+          "unmatched": 1957
+        },
+        "cuts": {
+          "requests": [
+            12699.333333333334,
+            15880.999999999998
+          ],
+          "long_closure_rate": [
+            0.15092087871270807,
+            0.18304009278340524
+          ]
+        },
+        "min_known": 30,
+        "population": 260034
+      },
+      "daily": {
+        "unknown_created_day": 0,
+        "rolling_days": 7,
+        "population": 260034
+      },
+      "survival": {
+        "input_time_groups": 125012,
+        "plotted_time_groups": 977,
+        "display_thinned": true,
+        "max_points": 1024
+      },
+      "output_rows": {
+        "district": 59,
+        "daily": 90,
+        "survival": 978
+      },
+      "outcomes": [
+        {
+          "borough": "Brooklyn",
+          "closed": 257585,
+          "censored": 1858,
+          "unknown_outcomes": 591,
+          "requests": 260034
+        }
+      ]
+    }
+  },
+  "process_peak_rss_mib": 373.90625
+}

@@ -1,146 +1,150 @@
-# Project status — Phase 1.5 engineering handoff
+# Project status — Phase 2A.1 Member 1 presentation handoff
 
-Updated November 11, 2026. **Phase 1.5 is implemented locally; the full course
-assignment is not complete.** The project is now published at
-[emrehann17/urbanpulse](https://github.com/emrehann17/urbanpulse). Work began on a
-clean `main` branch at `ab86841` (Phase 1). No commits, pushes, remote branch changes,
-or remote workflow runs were initiated during Phase 1.5.
+Updated November 11, 2026. Member 1's **three advanced interactive charts are
+implemented locally** on the shared pipeline. Six charts, final K-Means/logistic
+regression models, report and presentation remain pending. The full course
+assignment is not complete. Repository: [emrehann17/urbanpulse](https://github.com/emrehann17/urbanpulse).
+Work began on clean branch `viz/member1-geography-waiting`. No commits, pushes,
+remote branches, CI runs or dataset rebuilds/downloads were initiated in Phase 2A.
 
-## CI diagnosis and repair
+## Phase 2A.1 visual polish
 
-The reported Windows Actions failure was `pipx 1.18.12 has requirement
-packaging>=26.3, but you have packaging 24.2`. Project installation had succeeded;
-`pip check` saw a globally installed runner tool in the same interpreter environment.
-The existing Streamlit dependency set permits/pins packaging 24.2. Upgrading project
-packages to accommodate the unrelated runner tool would not address isolation.
+- Larger, closer-framed map with a separate square 3×3 key and external threshold
+  table. Labels now read Low / Medium / High; classification is unchanged.
+- Survival defaults to the first 30 days. Plotly buttons provide 7/30/90 days and
+  full follow-up through axis-only relayout. Short borough legends, distinct
+  dashes, and a separate exact cohort/censoring summary improve readability.
+- Taller daily panels, more spacing, a top two-row legend and slim bottom slider;
+  synchronized date axes and original counts/medians/rolling definitions retained.
+- Responsive standalone HTML cards, modern system typography, readable methods and
+  caveat sections, threshold/cohort tables and expandable JSON. All six reviews
+  regenerated from full local data; new logs remain ignored under benchmarks/local.
+- Modified only presentation/export/test/documentation files. app.py, query,
+  filtering, contract, chart preparation and full Parquet SHA-256 are unchanged
+  from the beginning of this polish task. Existing uncommitted work was preserved.
+- Full-data old/new renderer comparison: identical numeric traces and statistical
+  hover values for all requests and Brooklyn Q1. All prior benchmark cohort
+  counts, cutpoints, exclusions, denominators and output bounds match.
+- Programmatic camera/key containment checked at 1024/1440/1920px, plus window
+  button semantics, default ranges, empty states, tables and HTML structure.
+  Browser review remains pending: no installed or connected browser was available.
+  No screenshot, cross-platform or remote CI validation is claimed.
 
-The workflow now creates `.venv-ci` in **each Ubuntu and Windows job**, uses Python
-3.12, and invokes that environment's interpreter explicitly for install, pip check,
-Ruff, formatting, and pytest. The matrix selects `./.venv-ci/bin/python` on Ubuntu
-and `./.venv-ci/Scripts/python.exe` on Windows. GitHub-hosted runners provide Bash
-on both platforms, so no activation script or PowerShell policy change is needed.
-An isolation assertion checks sys.prefix/base_prefix and disabled user site packages;
-PYTHONNOUSERSITE is set. **pip check remains enabled; packaging remains 24.2.**
+The current task modified `visualizations/{bivariate,survival,timeseries,member1}.py`,
+`benchmarks/member1_benchmark.py`, `tests/test_member1.py`, and
+`docs/{VISUALIZATION_SPEC,CHART_METHODS,PROJECT_STATUS}.md`; it added
+`benchmarks/review_html.py`. The following sections also retain the earlier Phase 2A
+implementation and full-data evidence.
 
-The user reports that the earlier Ubuntu workflow passed and Windows failed.
-The repaired workflow has **not been run remotely**, and no native Windows run
-was available locally. Its isolated Ubuntu equivalent passed below. Further
-Windows-specific failures, if any, must be diagnosed from the next actual run.
-macOS runtime and package resolution remain unverified.
+## Implemented
 
-## Implemented incremental changes
+- `pipeline/chart_data.py`: exact district counts/known-label rates, complete daily
+  calendar/exact completed median/rolling trends, and streamed exact Kaplan–Meier
+  with Greenwood log-log pointwise intervals and bounded display buffers.
+- `pipeline/query.py`: reviewed exact median metric with denominator; context-managed
+  ordered survival frequency stream in 4,096-row batches. Existing APIs, parameter
+  safety, filters, footer checks, snapshot guards and ordinary output caps preserved.
+- `visualizations/bivariate.py`, `survival.py`, `timeseries.py`: pure interactive
+  Plotly renderers accepting documented small aggregate tables. Genuine 3×3 map
+  key; valid right censoring; linked daily date axes and optional trends.
+- `visualizations/member1.py` and `app.py`: one shared FilterSpec; cached aggregate
+  tables; exclusions, confidence/trend controls and errors; diagnostics in an
+  expander. The biased demo retains diagnostics without population charts.
+- `benchmarks/member1_benchmark.py`: repeatable real-data timings, population
+  reconciliation and six HTML review exports. Small measured JSON is included for review;
+  HTML, raw and full Parquet artifacts remain ignored.
+- Synthetic analytical/statistical/renderer/filter/app tests; full local quality
+  validation summary; documentation of definitions, input schemas, exclusions,
+  measured full quality and performance, plus working team examples.
 
-- New `pipeline/query.py`: local DuckDB 1.4.5 LTS queries, parameterized values/paths,
-  column/metric allowlists, projected previews, exact counts and grouped metrics,
-  NULL-safe duration and label denominators, memory/thread settings, and output caps.
-- Shared immutable `FilterSpec` in filters.py. The four existing public functions
-  and valid filter semantics remain compatible; Pandas/SQL parity is tested.
-- Footer-only `inspect_data()` shared by the original DataFrame loader and query
-  layer. Full global quality checks remain offline, not repeated at app startup.
-- Full-mode Streamlit now obtains catalog/options, exact summary, and at most 200
-  selected preview rows through SQL. Demo/smoke behavior stays in memory. Full-mode
-  caches are bounded and fingerprinted; snapshot replacement raises a clear error.
-- Ingestion resume now rejects key-audit failures, changed completed audit counts,
-  and a saved cursor that disagrees with the corresponding checksummed raw page.
-- Reproducible benchmarks with isolated backend processes, exact output comparisons,
-  real demo measurements, and a temporary explicitly synthetic 100,000-row experiment.
-- Updated README, pipeline/architecture, team guide, derived-query output dictionary,
-  decisions, performance/readiness guide, and this status report.
+The stored **52-column schema 1.0.0**, original filters, label/censoring definitions,
+cutoff, source scope, dependencies, demo and GeoJSON are unchanged. The map uses
+all 59 validated districts and reports excluded JIAs/unmapped requests. No other
+member's charts or final model training was added.
 
-The stored **52-column schema 1.0.0**, source scope, cleaning rules, historical
-outcome definitions, demo data, and geographic artifacts are unchanged. No chart,
-model training, new full snapshot, or dashboard redesign is included.
+## Full data and measured performance
 
-## Executed checks
+Start count = downloaded = processed = **3,652,435**, difference **0**, duplicate
+and missing IDs **0**. A fresh streaming Parquet validation passed in **41.258 s**;
+its SHA-256 matches the build report. Valid closures **3,593,599**, censored **47,756**,
+unknown outcomes **11,080**. District matches **3,596,942**, JIA **15,408**, unmatched
+**40,085**. See [DATA_QUALITY.md](DATA_QUALITY.md) for invalid date/duration counts,
+percentages, timestamps, all flags and snapshot limitations. No ingestion was needed.
 
-Local runtime: Ubuntu under WSL2, Python **3.12.3**, pandas **2.2.3**, PyArrow
-**19.0.1**, Streamlit **1.45.1**, DuckDB **1.4.5**. The initial Phase 1 suite passed
-**81 tests** before changes. A fresh `.venv-ci` was then created and installed from
-requirements-dev.txt. Network-restricted installation initially could not resolve
-packages; approved package-index access completed without changing existing pins.
+Three-run median preparation times on the real full artifact: map **157.077 ms**,
+daily **240.319 ms**, exact survival **3,981.067 ms**. Whole benchmark process peak
+RSS including HTML export: **373.91 MiB**. Brooklyn Q1 medians: **167.939 / 131.955 /
+493.830 ms** respectively. Every query used all matching requests. See
+[PERFORMANCE.md](PERFORMANCE.md) for environment, caveats and raw results.
 
-| Actual command/check | Observed result |
+## Executed verification
+
+Local Python 3.12.3 on Ubuntu/WSL2, existing pinned dependencies. The Phase 1.5
+baseline had 126 passing tests. Phase 2A added 35 tests; Phase 2A.1 adds eight presentation tests.
+Final local results are recorded below. No CI test calls the live NYC API or requires the large local artifact.
+
+- Full streaming `check_parquet(Path("data/processed/requests.parquet"))`: passed
+  schema, global uniqueness and outcome validation for 3,652,435 rows. Persisted
+  local report `data/processed/requests.validation.json`; small evidence summary
+  [full-validation-summary.json](../data/metadata/full-validation-summary.json).
+- Full SHA-256 independently recomputed and matched existing quality report.
+- `python -m benchmarks.member1_benchmark --dataset full --output benchmarks/member1_results.json`:
+  completed three repetitions, two cohorts, all reconciliations and six figure exports.
+- Actual full-data Streamlit AppTest: no exceptions/errors, three plots; default
+  date-filtered count **3,651,639**. Brooklyn: **1,078,061**, three plots. Empty borough
+  selection: **0**, no plots and no errors. The default date range excludes the
+  artifact's 796 unresolved creation dates consistently in every component.
+- Pure figure serialization and input immutability tests passed. Browser screenshot,
+  accessibility and pixel-level review were not executed; reproducible HTML/manual
+  interaction procedure is in [VISUALIZATION_SPEC.md](VISUALIZATION_SPEC.md).
+
+
+| Final command | Result |
 | --- | --- |
-| `python3 -m venv .venv-ci` | Fresh isolated environment created. |
-| `.venv-ci/bin/python -m pip install -r requirements-dev.txt` | Installation succeeded; only new runtime dependency is DuckDB. |
-| Interpreter/user-site/pipx assertions | Venv interpreter, user site disabled, pipx absent. |
-| `.venv-ci/bin/python -m pip check` | No broken requirements. |
-| `.venv-ci/bin/python -m ruff check .` | Passed. |
-| `.venv-ci/bin/python -m ruff format --check .` | 24 Python files formatted. |
-| `.venv-ci/bin/python -m pytest -q` | **126 passed in 8.44 seconds** in the final complete suite. |
-| Real raw-page audit | 2,400 downloaded/unique, 0 duplicates/missing IDs; checksums/cursors valid. |
-| Bounded build into ignored `data/tmp/phase15-smoke.parquet` | 2,400 processed, 0 excluded; original demo untouched. |
-| Streaming check_parquet on rebuilt file | Schema, uniqueness, outcomes: passed. |
-| README and team guide executable data examples | Executed successfully against the real demo. |
-| Real demo Streamlit AppTest | No exceptions; 2,400 overall, 710 Brooklyn, preview agrees with the selected borough. |
-| Extra bounded future-input queries | Brooklyn survival frequencies: 662 groups; complaint/duration frequencies: 690 groups. These are input tables, not fitted curves or charts. |
-| Real/synthetic benchmark output parity | Passed for all five workloads and both artifacts. |
-| EXPLAIN on filtered complaint counts | READ_PARQUET showed column projection and pushed borough/date predicates. |
-| Contract/artifact/docs audit | 52 columns, original demo checksum unchanged, local Markdown links valid, git diff --check passed. |
+| `.venv/bin/python -m pytest -q` | **169 passed in 28.12 seconds**, no pytest warnings |
+| `.venv/bin/python -m ruff check .` | All checks passed |
+| `.venv/bin/python -m ruff format --check .` | 33 files already formatted |
+| `.venv/bin/python -m pip check` | No broken requirements |
+| `git diff --check` | Passed |
 
-Tests include all pre-existing coverage plus single/combined/All/empty/unknown
-filter parity, inclusive dates and timezone conversion, NULL categories/dates,
-aggregation denominators, safe identifier rejection, parameter injection attempts,
-column projection, row/group caps, empty files, path quoting/CWD independence,
-schema/version and snapshot-change guards, query resource-error cleanup, and
-completed-checkpoint corruption. Full-mode AppTest explicitly fails if load_data
-or pq.read_table is called; SQL counts and previews still render and filters work.
-All network behavior in tests is mocked. No NYC API calls are required by CI.
+New tests cover analytic KM probabilities/Greenwood bounds and tied censoring,
+zero-time/all-censored/all-event cases, malformed streams, fixed fetch batches,
+bounded exact retained points, all nine bivariate classes, tie-preserving bins,
+59-district inclusion/JIA exclusions, missing/zero denominators, exact even-sample
+medians, zero days and rolling windows, shared filter propagation, empty selections,
+renderer serialization/immutability, full-mode app controls and demo restrictions.
 
-## Benchmark findings
+## CI and cross-platform status
 
-Three repetitions per workload, median latency; cached Pandas setup is reported
-separately from query time. DuckDB creates a connection per operation.
+The earlier Windows failure involved global runner `pipx` requiring packaging>=26.3
+while the project pins packaging24.2. Phase 1.5 repaired isolation, creating an
+explicit Python3.12 `.venv-ci` in both Ubuntu/Windows jobs; pip check, Ruff and pytest
+remain enabled inside it. Project dependencies were not upgraded for runner tools.
+That workflow is preserved. No remote workflow result or native Windows/macOS
+execution was verified during Phase 2A; local Linux/WSL results do not establish
+remote success. No OS-specific runtime path or new dependency was introduced.
 
-| Dataset | Pandas filtered count | DuckDB filtered count | Pandas peak RSS | DuckDB peak RSS |
-| --- | ---: | ---: | ---: | ---: |
-| Real demo, 2,400 records | 4.640 ms | 17.722 ms | 166.75 MiB | 155.04 MiB |
-| **Synthetic**, 100,000 replicated profiles | 90.636 ms | 14.796 ms | 369.80 MiB | 153.48 MiB |
+## Remaining limitations and next steps
 
-Cached Pandas was faster on the tiny demo; SQL was faster and used less memory in
-the synthetic experiment. These are not full-scale guarantees. Synthetic profile
-repetition, differing row-group sizes, warm filesystem caches, and uncontrolled
-host activity limit generalization. Detailed daily/category/borough/preview results,
-methodology, exact versions, and raw JSON reports are in [PERFORMANCE.md](PERFORMANCE.md).
-No large benchmark dataset is committed.
-
-## Full ingestion readiness and remaining risks
-
-Full 2025 ingestion is prepared but **not executed**. See
-[PERFORMANCE.md](PERFORMANCE.md) for the readiness audit and separate commands.
-Resumable pages, SHA-256 checks, disk-backed global ID checks, bounded transforms,
-atomic Parquet output, quality reports, and extraction provenance are present.
-
-API throttling/read timeouts and live source changes remain possible. Resume uses
-the original observation cutoff; later updates are not silently backdated. Start/end
-row-count equality is not proof of a transactional snapshot. Disk space must cover
-raw data, SQLite indexes, old/new Parquet, and query spill; local free space is not
-a guarantee on deployment machines. Full-mode 5,000-row pages yield relatively small
-row groups, which should be benchmarked before changing the build layout.
-
-Queries avoid unconditional full DataFrame loading, but high-cardinality grouping,
-exact distinct counts, concurrency, and large row groups can still consume substantial
-memory. The 512 MB DuckDB setting is not a hard total-process RAM cap. Unknown/censored
-outcomes retain their existing meaning. Future exact survival/density input may
-require a reviewed streaming or binning extension if it exceeds the group limit.
-Timestamp precision and snapshot-replacement limits are documented in PERFORMANCE.md.
-
-The sample still has 2,388 valid closures, 7 censored, 5 unknown outcomes, and
-99.3333% geographic matching; see the unchanged measured [quality report](DATA_QUALITY.md).
-It emphasizes early-month/night-time requests and cannot support population estimates.
-The current boundary release has not been reconciled against historical 2025 geometry.
-
-## Next steps for the three students
-
-1. Review this local diff, then authorize committing/pushing it and run the repaired
-   Ubuntu/Windows workflow. No remote success is claimed here.
-2. Execute a separate full ingestion/build/quality audit when disk/time/network
-   resources are allocated. Benchmark the real resulting artifact on the deployment host.
-3. Use one FilterSpec from the app shell. Small-data charts can keep filtered request
-   DataFrames; full-data charts should consume small exact aggregate tables from
-   ParquetQuery. Follow [TEAM_GUIDE.md](TEAM_GUIDE.md), including denominator rules.
-4. Each student develops three assigned visualizations. Do not implement independent
-   ingestion, cleaning, global filters, or ad hoc SQL. Treat previews as previews.
-5. Complete historical geography/creation-time feature reviews, future K-Means and
-   logistic regression, nine final charts, the English report/presentation, and rubric
-   validation before November 15, 2026, 23:59.
+1. Review local changes, authorize a commit/push when ready, then inspect Ubuntu
+   and Windows CI. No remote success is claimed here.
+2. Follow the HTML/Streamlit visual-review checklist; inspect narrow filters,
+   sparse districts, tiny tail risk sets, zoom and tooltips on the presentation host.
+   Bivariate palette accessibility has not been formally audited.
+3. KM estimates/intervals are exact at retained times; intermediate plotting steps
+   are omitted. Censor marks are omitted; intervals are pointwise and rely on
+   independence assumptions. No causal comparison or actual resolution is inferred.
+4. Closed-only daily medians omit pending/unknown outcomes. Known long-label rates
+   include mature open positives. The biased sample cannot estimate population
+   trends. Historical 2025 boundary agreement remains unverified.
+5. Members 2 and 3 should use the same FilterSpec and immutable Parquet through
+   reviewed small aggregates, following [TEAM_GUIDE.md](TEAM_GUIDE.md). No independent
+   ingestion/preprocessing/global-filter implementations. Keep chart input contracts
+   explicit and do not substitute a limited preview for a statistical population.
+6. Benchmark concurrent users, combined nine-chart workloads and memory on the
+   deployment host; a DuckDB buffer limit is not a whole-process RAM limit. Keep
+   local data/temporary spill space available. Share full artifacts outside Git
+   with their checksums or use the explicit documented ingestion workflow for a
+   separate fresh snapshot. Do not reingest/rebuild this validated artifact needlessly.
+7. Complete the other six charts, two final ML tasks, English report/presentation
+   and final integration before November 15, 2026, 23:59.

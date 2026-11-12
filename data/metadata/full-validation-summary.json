@@ -1,0 +1,52 @@
+{
+  "recorded_at": "2026-11-11T15:00:14.377782+00:00",
+  "validation": "passed",
+  "validation_seconds": 41.25814094999987,
+  "processed_rows": 3652435,
+  "unique_keys": 3652435,
+  "duplicate_keys": 0,
+  "source_count_at_start": 3652435,
+  "downloaded_rows": 3652435,
+  "downloaded_minus_start_count": 0,
+  "parquet_sha256": "8b2c29b7e860a344f29e53834dc36093feb3aa1bc873a69a2f00e9184810821a",
+  "provenance": {
+    "schema_version": "1.0.0",
+    "mode": "full",
+    "source_url": "https://data.cityofnewyork.us/d/erm2-nwe9",
+    "extraction_cutoff": "2026-11-11T13:05:11.985204+00:00",
+    "extraction_finished": "2026-11-11T13:38:17.429688+00:00",
+    "sampling": "none",
+    "manifest_sha256": "e6a4e63dada611ad0a7f411bee45c509ebab05d88afa3c10f67772b455b7ec86",
+    "built_at": "2026-11-11T13:38:24.988611+00:00",
+    "geography_sha256": "b67789a0247801752d9f0f3048cc86119562962216f2f36d151c1fb810561b9f"
+  },
+  "quality_flags": {
+    "is_duplicate_key": 0,
+    "missing_unique_key": 0,
+    "dst_unresolved": 1276,
+    "invalid_created_date": 796,
+    "invalid_closed_date": 760,
+    "invalid_resolution_action_updated_date": 757,
+    "invalid_borough": 0,
+    "has_valid_coordinates": 3604707,
+    "invalid_coordinates": 0,
+    "negative_duration": 845,
+    "status_date_inconsistent": 10556,
+    "after_cutoff": 0,
+    "duration_outlier": 6306,
+    "board_borough_mismatch": 2530
+  },
+  "geographic_matches": {
+    "community_district": 3596942,
+    "unmatched": 40085,
+    "joint_interest_area": 15408
+  },
+  "duration_buckets": {
+    "Closed within 24 hours": 2237246,
+    "Closed after 24 hours and within 7 days": 783648,
+    "Closed after 30 days": 261730,
+    "Closed after 7 days and within 30 days": 310975,
+    "Still open / censored": 47756,
+    "Unknown or invalid": 11080
+  }
+}

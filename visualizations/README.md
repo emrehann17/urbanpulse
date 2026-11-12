@@ -1,13 +1,16 @@
-# Visualization integration
+# Shared visualization integration
 
-Reserved for the three students' nine final visualizations. Phase 1 implements no
-final charts. See [the team guide](../docs/TEAM_GUIDE.md) for the shared interface:
-`create_visualization(filtered_df: pandas.DataFrame) -> plotly.graph_objects.Figure`.
-Modules receive already-filtered data, never ingest or clean it, and do not mutate it.
+Member 1 implements `bivariate.py`, `survival.py`, and `timeseries.py`, with the
+Streamlit section in `member1.py`. Six other assigned charts remain pending.
 
+Pure renderers return Plotly Figures from documented **already-filtered aggregate
+tables**. `pipeline.chart_data` prepares those small tables via ParquetQuery and
+one app-owned FilterSpec. Neither renderers nor individual team members ingest,
+clean, redefine outcomes or duplicate global filters. The stored 52-column contract
+remains unchanged. The small-cohort request-DataFrame chart interface is still valid,
+but aggregate inputs and raw request inputs must not be confused.
 
-For full-scale inputs, the app shell should query exact aggregate tables through
-`ParquetQuery` with one shared `FilterSpec`. A pure figure function may receive
-that smaller DataFrame; its docstring must state the aggregate schema and valid
-denominators. Do not pass a limited preview as a full statistical population.
-The team guide documents input patterns for all nine planned charts.
+See [TEAM_GUIDE](../docs/TEAM_GUIDE.md), [specifications](../docs/VISUALIZATION_SPEC.md),
+[methods/input schemas](../docs/CHART_METHODS.md) and
+[performance](../docs/PERFORMANCE.md). Use the benchmark module to export reproducible
+HTML reviews; do not infer population estimates from preview rows or the biased demo.
