@@ -1,0 +1,403 @@
+{
+  "features": [
+    "open_data_channel_type",
+    "created_hour",
+    "created_weekday",
+    "created_month"
+  ],
+  "seed": 2025,
+  "target": "Existing nullable is_long_closure; strict >168 hours, including eventual late closures",
+  "training_rows": 200000,
+  "training_prevalence": 0.172155,
+  "threshold": 0.2381669073588128,
+  "threshold_rule": "Maximum validation F1; ties: largest threshold",
+  "validation": {
+    "rows": 60000,
+    "positives": 10223,
+    "prevalence": 0.17038333333333333,
+    "average_precision": 0.34042436376271407,
+    "roc_auc": 0.7363312102388468,
+    "precision": 0.33645833333333336,
+    "recall": 0.5687175975740977,
+    "f1": 0.42279024106461116,
+    "confusion_matrix": [
+      [
+        38311,
+        11466
+      ],
+      [
+        4409,
+        5814
+      ]
+    ],
+    "brier_score": 0.12739473316749567,
+    "threshold": 0.2381669073588128,
+    "ranking_metrics_note": null
+  },
+  "test": {
+    "rows": 60000,
+    "positives": 9533,
+    "prevalence": 0.15888333333333332,
+    "average_precision": 0.32178358113257854,
+    "roc_auc": 0.7470028735761974,
+    "precision": 0.3258740391767915,
+    "recall": 0.5514528480016784,
+    "f1": 0.4096629651276057,
+    "confusion_matrix": [
+      [
+        39592,
+        10875
+      ],
+      [
+        4276,
+        5257
+      ]
+    ],
+    "brier_score": 0.12060220729616943,
+    "threshold": 0.2381669073588128,
+    "ranking_metrics_note": null
+  },
+  "baselines": {
+    "majority_class": {
+      "validation": {
+        "rows": 60000,
+        "positives": 10223,
+        "prevalence": 0.17038333333333333,
+        "average_precision": 0.17038333333333333,
+        "roc_auc": 0.5,
+        "precision": 0.0,
+        "recall": 0.0,
+        "f1": 0.0,
+        "confusion_matrix": [
+          [
+            49777,
+            0
+          ],
+          [
+            10223,
+            0
+          ]
+        ],
+        "brier_score": 0.17038333333333333,
+        "threshold": 0.5,
+        "ranking_metrics_note": null
+      },
+      "test": {
+        "rows": 60000,
+        "positives": 9533,
+        "prevalence": 0.15888333333333332,
+        "average_precision": 0.15888333333333332,
+        "roc_auc": 0.5,
+        "precision": 0.0,
+        "recall": 0.0,
+        "f1": 0.0,
+        "confusion_matrix": [
+          [
+            50467,
+            0
+          ],
+          [
+            9533,
+            0
+          ]
+        ],
+        "brier_score": 0.15888333333333332,
+        "threshold": 0.5,
+        "ranking_metrics_note": null
+      }
+    },
+    "train_prevalence": {
+      "validation": {
+        "rows": 60000,
+        "positives": 10223,
+        "prevalence": 0.17038333333333333,
+        "average_precision": 0.17038333333333333,
+        "roc_auc": 0.5,
+        "precision": 0.0,
+        "recall": 0.0,
+        "f1": 0.0,
+        "confusion_matrix": [
+          [
+            49777,
+            0
+          ],
+          [
+            10223,
+            0
+          ]
+        ],
+        "brier_score": 0.1413559918583333,
+        "threshold": 0.5,
+        "ranking_metrics_note": null
+      },
+      "test": {
+        "rows": 60000,
+        "positives": 9533,
+        "prevalence": 0.15888333333333332,
+        "average_precision": 0.15888333333333332,
+        "roc_auc": 0.5,
+        "precision": 0.0,
+        "recall": 0.0,
+        "f1": 0.0,
+        "confusion_matrix": [
+          [
+            50467,
+            0
+          ],
+          [
+            9533,
+            0
+          ]
+        ],
+        "brier_score": 0.13381555685833332,
+        "threshold": 0.5,
+        "ranking_metrics_note": null
+      }
+    }
+  },
+  "metric_notes": "PR-AUC is non-interpolated Average Precision; matrix rows=true, columns=predicted in [False,True] order; zero-division precision/recall/F1=0",
+  "estimator": {
+    "solver": "liblinear",
+    "penalty": "l2",
+    "C": 1.0,
+    "class_weight": null,
+    "max_iter": 1000,
+    "tol": 1e-06,
+    "iterations": [
+      8
+    ]
+  },
+  "preprocessing": {
+    "fit_partition": "train only",
+    "calendar_encoding": "nominal one-hot",
+    "missing": "__Missing__",
+    "min_frequency": 20,
+    "max_categories_per_predictor": 32,
+    "unseen": "infrequent category if learned, otherwise all-zero block",
+    "encoded_features": [
+      "open_data_channel_type_MOBILE",
+      "open_data_channel_type_ONLINE",
+      "open_data_channel_type_PHONE",
+      "open_data_channel_type_UNKNOWN",
+      "open_data_channel_type_infrequent_sklearn",
+      "created_hour_0",
+      "created_hour_1",
+      "created_hour_10",
+      "created_hour_11",
+      "created_hour_12",
+      "created_hour_13",
+      "created_hour_14",
+      "created_hour_15",
+      "created_hour_16",
+      "created_hour_17",
+      "created_hour_18",
+      "created_hour_19",
+      "created_hour_2",
+      "created_hour_20",
+      "created_hour_21",
+      "created_hour_22",
+      "created_hour_23",
+      "created_hour_3",
+      "created_hour_4",
+      "created_hour_5",
+      "created_hour_6",
+      "created_hour_7",
+      "created_hour_8",
+      "created_hour_9",
+      "created_weekday_0",
+      "created_weekday_1",
+      "created_weekday_2",
+      "created_weekday_3",
+      "created_weekday_4",
+      "created_weekday_5",
+      "created_weekday_6",
+      "created_month_1",
+      "created_month_2",
+      "created_month_3",
+      "created_month_4",
+      "created_month_5",
+      "created_month_6",
+      "created_month_7",
+      "created_month_8"
+    ],
+    "sparse_shape": [
+      200000,
+      44
+    ],
+    "sparse_nnz": 800000,
+    "sparse_bytes": 10400004
+  },
+  "coefficients": {
+    "open_data_channel_type_MOBILE": -1.712988679975197,
+    "open_data_channel_type_ONLINE": -0.485858894458236,
+    "open_data_channel_type_PHONE": 0.13047695572869253,
+    "open_data_channel_type_UNKNOWN": 0.6352152025429441,
+    "open_data_channel_type_infrequent_sklearn": 0.31442486911802564,
+    "created_hour_0": -0.7796424501854368,
+    "created_hour_1": -0.7827492178743276,
+    "created_hour_10": 0.4919108937200119,
+    "created_hour_11": 0.49125762898250536,
+    "created_hour_12": 0.5044191369971927,
+    "created_hour_13": 0.4850398828591202,
+    "created_hour_14": 0.4429883799058818,
+    "created_hour_15": 0.4514683097111999,
+    "created_hour_16": 0.43281250123869375,
+    "created_hour_17": 0.37040601641184434,
+    "created_hour_18": 0.17743109373374127,
+    "created_hour_19": 0.06310212210317541,
+    "created_hour_2": -0.7971017124233132,
+    "created_hour_20": -0.0778546767255844,
+    "created_hour_21": -0.2011041920998125,
+    "created_hour_22": -0.45707621792525277,
+    "created_hour_23": -0.672327156174507,
+    "created_hour_3": -0.6978984554938547,
+    "created_hour_4": -0.5833778902690413,
+    "created_hour_5": -0.3177021966160193,
+    "created_hour_6": -0.18591134623856378,
+    "created_hour_7": -0.027858000535820437,
+    "created_hour_8": 0.19259215233603985,
+    "created_hour_9": 0.3584448476646357,
+    "created_weekday_0": -0.006913273372752958,
+    "created_weekday_1": -0.052177234624683634,
+    "created_weekday_2": -0.03954112286984447,
+    "created_weekday_3": -0.06794563084268876,
+    "created_weekday_4": -0.15342332228938724,
+    "created_weekday_5": -0.3640457205732829,
+    "created_weekday_6": -0.4346842421770522,
+    "created_month_1": -0.2906742966943878,
+    "created_month_2": -0.2720315608121519,
+    "created_month_3": -0.15033120587538448,
+    "created_month_4": -0.17346343364709418,
+    "created_month_5": -0.15580009436805387,
+    "created_month_6": -0.07252803581590092,
+    "created_month_7": 0.014026444151548304,
+    "created_month_8": -0.017928363705960227
+  },
+  "interpretation": "Descriptive associations, not causal effects. Retrospective single-snapshot evaluation, not a prospective deployment backtest.",
+  "model_version": "phase3a-v1",
+  "source": {
+    "parquet_sha256": "8b2c29b7e860a344f29e53834dc36093feb3aa1bc873a69a2f00e9184810821a",
+    "rows": 3652435,
+    "columns": 52,
+    "provenance": {
+      "schema_version": "1.0.0",
+      "mode": "full",
+      "source_url": "https://data.cityofnewyork.us/d/erm2-nwe9",
+      "extraction_cutoff": "2026-11-11T13:05:11.985204+00:00",
+      "extraction_finished": "2026-11-11T13:38:17.429688+00:00",
+      "sampling": "none",
+      "manifest_sha256": "e6a4e63dada611ad0a7f411bee45c509ebab05d88afa3c10f67772b455b7ec86",
+      "built_at": "2026-11-11T13:38:24.988611+00:00",
+      "geography_sha256": "b67789a0247801752d9f0f3048cc86119562962216f2f36d151c1fb810561b9f"
+    },
+    "quality_report_sha256": "f969e68ee0bf09a5c4d2d85e1dd0b3309787d117de470709bacd7b797a3740df"
+  },
+  "run_started_utc": "2026-11-12T17:08:32.895683+00:00",
+  "packages": {
+    "scikit-learn": "1.7.2",
+    "scipy": "1.16.3",
+    "numpy": "2.5.4",
+    "pandas": "2.2.3",
+    "pyarrow": "19.0.1",
+    "duckdb": "1.4.5",
+    "joblib": "1.5.2",
+    "threadpoolctl": "3.6.0"
+  },
+  "python": "3.12.3",
+  "platform": "Linux",
+  "memory_policy": {
+    "duckdb_mb": 512,
+    "duckdb_threads": 1,
+    "numerical_threads": 1,
+    "note": "DuckDB buffer limit is not a total process RAM limit; projected bounded samples only; no dense request-level one-hot matrix"
+  },
+  "verification_seconds": 1.6396783370000776,
+  "cohort_audit": {
+    "invalid_created_date": {
+      "rows": 796,
+      "known_labels": 0,
+      "unknown_labels": 796,
+      "positives": 0
+    },
+    "test": {
+      "rows": 635786,
+      "known_labels": 634595,
+      "unknown_labels": 1191,
+      "positives": 101010
+    },
+    "train": {
+      "rows": 2376996,
+      "known_labels": 2368705,
+      "unknown_labels": 8291,
+      "positives": 410714
+    },
+    "validation": {
+      "rows": 638857,
+      "known_labels": 638055,
+      "unknown_labels": 802,
+      "positives": 108737
+    },
+    "outside_2025": {
+      "rows": 0,
+      "known_labels": 0,
+      "unknown_labels": 0,
+      "positives": 0
+    }
+  },
+  "excluded_rows": {
+    "invalid_created_date": 796,
+    "outside_2025": 0,
+    "unknown_labels_with_valid_2025_dates": 10284,
+    "total": 11080
+  },
+  "predictor_availability": {
+    "open_data_channel_type_missing": 0,
+    "open_data_channel_type_distinct": 5,
+    "created_hour_missing": 796,
+    "created_hour_distinct": 24,
+    "created_weekday_missing": 796,
+    "created_weekday_distinct": 7,
+    "created_month_missing": 796,
+    "created_month_distinct": 12
+  },
+  "sampling": {
+    "train": {
+      "range_inclusive_exclusive": [
+        "2025-01-01",
+        "2025-09-01"
+      ],
+      "limit": 200000,
+      "eligible": 2368705,
+      "sampled": 200000,
+      "fraction": 0.08443432170743086,
+      "eligible_not_sampled": 2168705
+    },
+    "validation": {
+      "range_inclusive_exclusive": [
+        "2025-09-01",
+        "2025-11-01"
+      ],
+      "limit": 60000,
+      "eligible": 638055,
+      "sampled": 60000,
+      "fraction": 0.09403578061452382,
+      "eligible_not_sampled": 578055
+    },
+    "test": {
+      "range_inclusive_exclusive": [
+        "2025-11-01",
+        "2026-01-01"
+      ],
+      "limit": 60000,
+      "eligible": 634595,
+      "sampled": 60000,
+      "fraction": 0.09454849155760761,
+      "eligible_not_sampled": 574595
+    }
+  },
+  "sampling_rule": "Within each eligible temporal partition, ORDER BY sha256(seed || ':' || unique_key), unique_key LIMIT cap; no stratification",
+  "exclusion_rule": "Disjoint invalid dates, outside-2025 dates, then unknown labels within each valid temporal partition. Unknown labels never imputed.",
+  "elapsed_seconds": 7.431098208000094,
+  "total_run_seconds": 11.937924844999998,
+  "process_peak_rss_mib": 660.67578125
+}
