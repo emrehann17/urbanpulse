@@ -9,12 +9,12 @@ UrbanPulse asks: Which service requests take longest to close? How do service
 profiles differ across boroughs and community districts? How much apparent delay
 reflects still-open requests, request mix, or incomplete records?
 
-**Current phase: Phase 2A — Member 1 advanced visualizations.** Three interactive
-charts now use the shared filtered Parquet architecture: a bivariate community
-district map, borough Kaplan–Meier curves, and a linked daily time-series explorer.
-The pipeline, 52-column contract, diagnostics, and Phase 1.5 query APIs remain intact.
-The other six visualizations, two final ML models, report, and presentation remain
-pending. Diagnostics do not count as final charts.
+**Current phase: Phase 3A — offline ML baselines implemented.** Member 1’s
+bivariate district map, borough Kaplan–Meier curves, and daily time-series explorer
+are complete. Reproducible K-Means and Logistic Regression baselines now have
+measured full-source results. The pipeline, 52-column contract, diagnostics, and
+query APIs remain intact. The other six visualizations (including final ML
+visualizations), report, and presentation remain pending.
 
 ## Data and scope
 
@@ -124,8 +124,7 @@ No Streamlit dependency is required by these functions. Missing values use
 
 ## Scalable access for full data
 
-DuckDB **1.4.5 LTS** is the only new runtime dependency, installed by the existing
-requirements command. It queries local Parquet directly; no database server or
+DuckDB **1.4.5 LTS** is installed by the existing requirements command. It queries local Parquet directly; no database server or
 persistent copy is created. Existing public DataFrame APIs and the 52-column
 contract remain unchanged.
 
@@ -191,7 +190,7 @@ urbanpulse/
 │   ├── geographic/         # validated GeoJSON + retrieval metadata
 │   └── metadata/           # source schema snapshots
 ├── visualizations/         # Member 1 map, survival, time series, shared app section
-├── ml/                     # design reference; trained models pending
+├── ml/                     # offline baselines, aggregate results; ignored local models
 ├── tests/                  # deterministic offline tests and app integration
 ├── benchmarks/             # reproducible script and small measured JSON reports
 ├── docs/                   # data dictionary, pipeline, quality, team and ML guides
@@ -228,7 +227,7 @@ for population inference or model training.
 - [Team guide and examples](docs/TEAM_GUIDE.md)
 - [Measured data quality](docs/DATA_QUALITY.md)
 - [Source verification](docs/SOURCES.md)
-- [Future ML design](docs/ML_DESIGN.md)
+- [Implemented ML methods and future work](docs/ML_DESIGN.md)
 - [Decisions and trade-offs](docs/DECISIONS.md)
 - [Project status and remaining work](docs/PROJECT_STATUS.md)
 
@@ -251,3 +250,24 @@ HTML files under `benchmarks/local/member1/` for all requests and Brooklyn Q1.
 Open them in a browser to review map hover/zoom, the 3×3 key, survival legend toggles,
 and linked daily axes. See [visualization specifications](docs/VISUALIZATION_SPEC.md),
 [statistical methods](docs/CHART_METHODS.md), and [performance](docs/PERFORMANCE.md).
+
+## Phase 3A training and evaluation
+
+With the verified full Parquet and its quality report already present locally:
+
+```text
+python -m pip install -r requirements-dev.txt
+python -m ml.train --dataset full --output ml/local
+```
+
+Training uses bounded DuckDB projections; the demo is rejected. K-Means fits all
+59 ordinary-district aggregates. Logistic Regression fits a deterministic 200,000-row
+training sample with 60,000-row validation/test samples, split chronologically.
+Source hashes, exact exclusions, seed, package versions, metrics, and baselines are
+recorded in `ml/results/`. Serialized models stay in ignored `ml/local/`.
+
+Member 3 can consume `ml/results/district_clusters.csv` by string `boro_cd`, using
+its existing `cluster_id`, `pca_x`, and `pca_y` without refitting. See the
+[ML README](ml/README.md) for CLI controls, measured results, column semantics, and
+limitations. The evaluation is retrospective from one snapshot; clusters and
+coefficients are descriptive, not rankings or causal effects.
