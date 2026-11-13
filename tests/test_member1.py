@@ -226,12 +226,12 @@ def test_full_shell_renders_all_charts_and_controls(tmp_path, raw_run, monkeypat
     app = AppTest.from_file(str(ROOT / "app.py"), default_timeout=20).run()
     app.sidebar.selectbox[0].set_value("full").run()
     assert not app.exception and not app.error
-    assert len(app.get("plotly_chart")) == 3
+    assert len(app.get("plotly_chart")) == 6
     app.checkbox[0].uncheck().run()
     app.checkbox[1].uncheck().run()
-    assert not app.exception and len(app.get("plotly_chart")) == 3
+    assert not app.exception and len(app.get("plotly_chart")) == 6
     app.sidebar.multiselect[0].set_value([]).run()
-    assert app.metric[0].value == "0" and len(app.get("plotly_chart")) == 0
+    assert app.metric[0].value == "0" and len(app.get("plotly_chart")) == 2
 
 
 @pytest.mark.parametrize("bad", [0, -1, 32, True])

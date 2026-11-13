@@ -10,6 +10,7 @@ from pipeline.filters import FilterSpec
 from pipeline.loader import data_path
 from pipeline.query import ParquetQuery
 from visualizations.member1 import render_member1
+from visualizations.member3 import render_member3_bipartite, render_member3_models
 
 PREVIEW_COLUMNS = (
     "unique_key",
@@ -54,9 +55,9 @@ def query_diagnostics(dataset: str, fingerprint: tuple, filters: FilterSpec) -> 
 
 def main() -> None:
     """Render a minimal integration app without making any network requests."""
-    st.set_page_config(page_title="UrbanPulse — Member 1", layout="wide")
+    st.set_page_config(page_title="UrbanPulse", layout="wide")
     st.title("UrbanPulse — Where Do Public Service Requests Wait?")
-    st.caption("Member 1: geography, waiting times, and daily demand · CEN445")
+    st.caption("Geography, waiting times, service networks, and district profiles · CEN445")
     dataset = st.sidebar.selectbox("Dataset", ["demo", "smoke", "full"], key="dataset")
     try:
         path = data_path(dataset)
@@ -132,21 +133,29 @@ def main() -> None:
     right.metric("Matched district / JIA", f"{summary['geographic_matches']:,}")
     if summary["rows"] == 0:
         st.info("No records match these filters. Adjust the sidebar selections.")
-        return
-    with st.expander("Shared-data diagnostics", expanded=False):
-        st.subheader("Shared-data quality indicators")
-        st.json(summary)
-        st.subheader("Filtered record preview")
-        st.dataframe(
-            preview,
-            hide_index=True,
-            use_container_width=True,
+    else:
+        with st.expander("Shared-data diagnostics", expanded=False):
+            st.subheader("Shared-data quality indicators")
+            st.json(summary)
+            st.subheader("Filtered record preview")
+            st.dataframe(
+                preview,
+                hide_index=True,
+                use_container_width=True,
+            )
+            st.caption(
+                "Preview limited to 200 rows. All indicators use the same complete filtered data. "
+                "These diagnostics are not part of the nine final visualizations."
+            )
+        render_member1(
+            path,
+            filters,
+            is_full=provenance["mode"] == "full",
+            fingerprint=fingerprint,
         )
-        st.caption(
-            "Preview limited to 200 rows. All indicators use the same complete filtered data. "
-            "These diagnostics are not part of the nine final visualizations."
-        )
-    render_member1(path, filters, is_full=provenance["mode"] == "full", fingerprint=fingerprint)
+        if provenance["mode"] == "full":
+            render_member3_bipartite(path, filters, fingerprint=fingerprint)
+    render_member3_models(is_full=provenance["mode"] == "full")
 
 
 if __name__ == "__main__":

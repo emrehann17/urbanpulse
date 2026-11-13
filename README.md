@@ -9,12 +9,13 @@ UrbanPulse asks: Which service requests take longest to close? How do service
 profiles differ across boroughs and community districts? How much apparent delay
 reflects still-open requests, request mix, or incomplete records?
 
-**Current phase: Phase 3A — offline ML baselines implemented.** Member 1’s
-bivariate district map, borough Kaplan–Meier curves, and daily time-series explorer
-are complete. Reproducible K-Means and Logistic Regression baselines now have
-measured full-source results. The pipeline, 52-column contract, diagnostics, and
-query APIs remain intact. The other six visualizations (including final ML
-visualizations), report, and presentation remain pending.
+**Current phase: Phase 3B — Member 1 and Member 3 visualizations implemented.**
+Member 1’s bivariate district map, borough Kaplan–Meier curves, and daily time-series
+explorer are complete. Member 3’s bipartite agency–complaint network, district
+parallel-coordinates explorer, and PCA cluster explorer are integrated. Reproducible
+K-Means and Logistic Regression baselines have measured full-source results. The
+pipeline, 52-column contract, diagnostics, and query APIs remain intact. Member 2’s
+three visualizations, final report, and presentation remain pending.
 
 ## Data and scope
 
@@ -189,7 +190,7 @@ urbanpulse/
 │   ├── demo/               # small real sample + provenance + measured quality
 │   ├── geographic/         # validated GeoJSON + retrieval metadata
 │   └── metadata/           # source schema snapshots
-├── visualizations/         # Member 1 map, survival, time series, shared app section
+├── visualizations/         # Member 1 and Member 3 pure renderers/app sections
 ├── ml/                     # offline baselines, aggregate results; ignored local models
 ├── tests/                  # deterministic offline tests and app integration
 ├── benchmarks/             # reproducible script and small measured JSON reports
@@ -230,6 +231,7 @@ for population inference or model training.
 - [Implemented ML methods and future work](docs/ML_DESIGN.md)
 - [Decisions and trade-offs](docs/DECISIONS.md)
 - [Project status and remaining work](docs/PROJECT_STATUS.md)
+- [Member 3 visualization and presentation notes](docs/MEMBER3_VISUALIZATIONS.md)
 
 - [Query performance and full-ingestion readiness](docs/PERFORMANCE.md)
 
@@ -250,6 +252,15 @@ HTML files under `benchmarks/local/member1/` for all requests and Brooklyn Q1.
 Open them in a browser to review map hover/zoom, the 3×3 key, survival legend toggles,
 and linked daily axes. See [visualization specifications](docs/VISUALIZATION_SPEC.md),
 [statistical methods](docs/CHART_METHODS.md), and [performance](docs/PERFORMANCE.md).
+
+## Member 3 visualizations and review
+
+Choose **full** in Streamlit. The Bipartite Network uses the same shared filters as
+the application. Parallel Coordinates and PCA show the persisted full-year
+59-district K-Means results; sidebar filters do not refit or subset them. Local HTML
+reviews are written under ignored `ml/local/`. See
+[Member 3 visualization and presentation notes](docs/MEMBER3_VISUALIZATIONS.md) for
+input contracts, measured findings, interaction guidance, and limitations.
 
 ## Phase 3A training and evaluation
 
