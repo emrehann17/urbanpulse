@@ -142,11 +142,33 @@ Each receives its documented aggregate table including attrs; none filters, load
 queries, trains models or mutates inputs. They specialize the shared
 `create_visualization(filtered_df) -> Figure` interface: `chart_df` here means
 already-filtered **aggregate** rows, not request-level contract rows. Do not pass
-a preview or drop attrs during serialization. The app constructs these inputs and
-caches only four small tables (8 entries, 10-minute TTL) keyed by FilterSpec,
-Parquet path/mtime/size and geography path/mtime/size. Existing diagnostics caches
-remain unchanged. Plotly map rendering uses the documented
+a preview or drop attrs during serialization. Member 1 caches its four small tables
+(8 entries, 10-minute TTL); Member 2 separately caches its three exact chart tables
+(32 entries, 10-minute TTL). Both key filtered results by FilterSpec and Parquet
+path/mtime/size. Existing diagnostics caches remain unchanged. Plotly map rendering uses the documented
 [Choroplethmap API](https://plotly.com/python/maplibre-migration/).
+
+## Member 2 chart inputs and display
+
+Member 2 uses the same immutable snapshot and shared `FilterSpec` as the other
+dashboard sections. The calendar uses `daily_data(query, filters)`: request counts
+are exact by New York creation day, and null creation dates remain a separate
+reported total. The Sankey receives exact
+`query.aggregate(("agency", "complaint_type"), metrics=("requests",), filters=filters)`
+rows. Null category groups are rendered with explicit missing labels; every edge
+is retained, and the count total reconciles to the filtered request population.
+
+The ridgeline first ranks complaint types by exact `valid_closures` in the filtered
+population, then obtains exact `(complaint_type, closure_hours)` request frequencies
+for the six largest cohorts. Null durations and missing complaint labels are not
+closure observations. It uses frequency-weighted Gaussian KDE, with one ridge
+normalized to unit maximum within each complaint type so shapes can be compared.
+The shared x-axis ends at the weighted 98th percentile across the plotted cohorts;
+observations beyond that display limit still contribute to each KDE and their exact
+count is reported. Exact duration-frequency aggregation uses the normal 100,000
+group guard; an over-limit cohort must be narrowed rather than sampled or truncated.
+All three visualizations accept exact prepared aggregates and do not read request
+previews.
 
 ## Phase 2A.1 display-only refinements
 
