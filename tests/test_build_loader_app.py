@@ -62,6 +62,7 @@ def test_app_filters_and_missing_data(tmp_path, raw_run, monkeypatch):
     assert not app.exception and app.warning
     assert app.metric[0].value == "2"
     assert len(app.dataframe[0].value) == 2
+    assert len(app.get("plotly_chart")) == 3
     app.sidebar.multiselect[0].set_value([]).run()
     assert not app.exception and app.metric[0].value == "0"
     assert any("No records" in item.value for item in app.info)
