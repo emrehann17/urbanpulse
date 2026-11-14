@@ -1,10 +1,12 @@
 # Shared visualization integration
 
 Member 1 implements `bivariate.py`, `survival.py`, and `timeseries.py`, with the
-Streamlit section in `member1.py`. Member 3 implements `member3_bipartite.py`,
+Streamlit section in `member1.py`. Member 2 implements `member2_calendar.py`,
+`member2_sankey.py`, and `member2_ridgeline.py`, integrated in `member2.py`.
+Member 3 implements `member3_bipartite.py`,
 `member3_parallel_coordinates.py`, and `member3_pca_clusters.py`, with integration
-in `member3.py`. Member 2's three assigned charts remain pending. The earlier
-`member3_heatmap.py` is a supplemental prototype, not one of the nine final charts.
+in `member3.py`. The earlier `member3_heatmap.py` is a supplemental prototype,
+not one of the nine final charts.
 
 Pure renderers return Plotly Figures from documented **already-filtered aggregate
 tables**. `pipeline.chart_data` prepares those small tables via ParquetQuery and

@@ -209,7 +209,8 @@ def test_real_demo_aggregate_reconciliation(geo):
 def test_demo_app_does_not_present_population_charts():
     app = AppTest.from_file(str(ROOT / "app.py"), default_timeout=20).run()
     assert not app.exception
-    assert len(app.get("plotly_chart")) == 0
+    # The three Member 2 charts report the demo as a selected sample, not population data.
+    assert len(app.get("plotly_chart")) == 3
     assert any("earliest" in info.value for info in app.info)
 
 
@@ -226,10 +227,11 @@ def test_full_shell_renders_all_charts_and_controls(tmp_path, raw_run, monkeypat
     app = AppTest.from_file(str(ROOT / "app.py"), default_timeout=20).run()
     app.sidebar.selectbox[0].set_value("full").run()
     assert not app.exception and not app.error
-    assert len(app.get("plotly_chart")) == 6
+    # Member 1's three and Member 2's three charts coexist in the full dashboard.
+    assert len(app.get("plotly_chart")) == 9
     app.checkbox[0].uncheck().run()
     app.checkbox[1].uncheck().run()
-    assert not app.exception and len(app.get("plotly_chart")) == 6
+    assert not app.exception and len(app.get("plotly_chart")) == 9
     app.sidebar.multiselect[0].set_value([]).run()
     assert app.metric[0].value == "0" and len(app.get("plotly_chart")) == 2
 
