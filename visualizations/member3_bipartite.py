@@ -141,11 +141,17 @@ def create_visualization(
             f"({shown_pct:.1f}%)</sup>"
         ),
         template="plotly_white",
-        height=820,
+        height=850,
         font={"family": "Arial, sans-serif", "size": 14, "color": "#243247"},
         hoverlabel={"font_size": 14, "bgcolor": "white"},
-        legend={"orientation": "h", "x": 0.38, "y": 1.03, "yanchor": "bottom"},
-        margin={"l": 230, "r": 300, "t": 155, "b": 65},
+        legend={
+            "orientation": "h",
+            "x": 0.5,
+            "xanchor": "center",
+            "y": 1.03,
+            "yanchor": "bottom",
+        },
+        margin={"l": 150, "r": 250, "t": 200, "b": 65},
         xaxis={"range": [-0.08, 1.08], "visible": False, "fixedrange": True},
         yaxis={"range": [-0.05, 1.05], "visible": False, "fixedrange": True},
         meta={

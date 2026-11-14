@@ -33,7 +33,10 @@ def test_pca_scatter_contains_all_districts_and_saved_coordinates(clusters, meta
     fig = create_visualization(clusters, metadata)
 
     assert len(fig.data) == 2
-    assert {trace.name.split(" ·")[0] for trace in fig.data} == {"Cluster 0", "Cluster 1"}
+    assert {trace.name for trace in fig.data} == {
+        "Cluster 0 (36 districts)",
+        "Cluster 1 (23 districts)",
+    }
     assert [len(trace.x) for trace in fig.data] == [36, 23]
     assert sum(len(trace.x) for trace in fig.data) == 59
     assert {trace.marker.color for trace in fig.data} == set(CLUSTER_COLORS.values())
@@ -67,9 +70,9 @@ def test_pca_hover_axes_title_and_semantics(clusters, metadata):
     assert "27.73%" in fig.layout.yaxis.title.text
     assert "precomputed 2025 K-Means model" in fig.layout.title.text
     assert "Reviewed full-year district cohort" in fig.layout.title.text
-    assert fig.layout.title.text.count("<br>") == 1
+    assert fig.layout.title.text.count("<br>") == 2
     assert fig.layout.legend.y > 1
-    assert fig.layout.margin.t >= 155
+    assert fig.layout.margin.t >= 190
     assert "not success" in fig.layout.annotations[0].text
     assert "Plotly.newPlot" in fig.to_html(include_plotlyjs=False)
 
