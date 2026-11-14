@@ -159,7 +159,7 @@ def create_visualization(
                 x=group["pca_x"],
                 y=group["pca_y"],
                 mode="markers",
-                name=f"Cluster {cluster_id} · descriptive label ({len(group)} districts)",
+                name=f"Cluster {cluster_id} ({len(group)} districts)",
                 marker={
                     "color": CLUSTER_COLORS[cluster_id],
                     "size": 13,
@@ -178,26 +178,26 @@ def create_visualization(
             )
         )
 
-    scope = f"{subtitle} · " if subtitle else ""
+    scope = f"<br><sup>{subtitle}</sup>" if subtitle else ""
     fig.update_layout(
         title={
             "text": (
                 "PCA Cluster Explorer · precomputed 2025 K-Means model"
-                f"<br><sup>{scope}59 ordinary community districts · PCA coordinates are saved "
+                f"{scope}<br><sup>59 ordinary community districts · PCA coordinates are saved "
                 "model outputs</sup>"
             ),
             "font": {"size": 20},
         },
         template="plotly_white",
         autosize=True,
-        height=720,
+        height=760,
         font={"family": "Arial, sans-serif", "size": 14, "color": "#243247"},
         hoverlabel={"font_size": 14, "bgcolor": "white"},
         hovermode="closest",
         xaxis={"title": x_title, "zeroline": True, "zerolinecolor": "#cbd5e1"},
         yaxis={"title": y_title, "zeroline": True, "zerolinecolor": "#cbd5e1"},
-        legend={"orientation": "h", "x": 0, "y": 1.04, "yanchor": "bottom"},
-        margin={"l": 85, "r": 35, "t": 155, "b": 105},
+        legend={"orientation": "h", "x": 0, "y": 1.03, "yanchor": "bottom"},
+        margin={"l": 85, "r": 35, "t": 190, "b": 105},
         annotations=[
             {
                 "text": (

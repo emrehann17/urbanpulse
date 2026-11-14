@@ -44,6 +44,11 @@ def test_bipartite_draws_bounded_edges_nodes_and_coverage(network_data):
     assert fig.layout.meta["total_requests"] == 275
     assert "Brooklyn · 2025" in fig.layout.title.text
     assert "90.9%" in fig.layout.title.text
+    assert fig.layout.title.text.count("<br>") == 3
+    assert fig.layout.margin.t == 200
+    assert fig.layout.margin.l == 150
+    assert fig.layout.margin.r == 250
+    assert fig.layout.legend.xanchor == "center"
     assert all("Requests:" in trace.text[0] for trace in edge_traces)
 
 

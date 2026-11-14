@@ -36,15 +36,21 @@ def test_parallel_coordinates_contains_all_districts_and_dimensions(clusters, me
     assert [dimension.label for dimension in trace.dimensions[:4]] == [
         "District code",
         "Requests",
-        "Median closure<br>(hours)",
-        "Beyond 7 days<br>(%)",
+        "Median closure (h)",
+        "Over 7 days (%)",
     ]
-    assert "Illegal Parking<br>(%)" in [dimension.label for dimension in trace.dimensions]
-    assert "HEAT/HOT WATER<br>(%)" in [dimension.label for dimension in trace.dimensions]
-    assert tuple(trace.domain.y) == (0.10, 0.80)
-    assert trace.line.colorbar.x <= 0.96
+    assert "Illegal Parking (%)" in [dimension.label for dimension in trace.dimensions]
+    assert "Residential noise (%)" in [dimension.label for dimension in trace.dimensions]
+    assert "HEAT/HOT WATER (%)" in [dimension.label for dimension in trace.dimensions]
+    assert all("<br>" not in dimension.label for dimension in trace.dimensions)
+    assert tuple(trace.domain.x) == (0, 0.88)
+    assert tuple(trace.domain.y) == (0.10, 0.68)
+    assert trace.labelfont.size == 11
+    assert trace.line.colorbar.x <= 0.94
+    assert fig.layout.margin.t == 190
     assert fig.layout.meta["district_count"] == 59
     assert "Reviewed 2025 cohort" in fig.layout.title.text
+    assert fig.layout.title.text.count("<br>") == 2
     assert "not performance rankings" in fig.layout.annotations[0].text
     assert "Plotly.newPlot" in fig.to_html(include_plotlyjs=False)
 

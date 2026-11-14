@@ -78,6 +78,9 @@ def create_visualization(
     """Render the 59 saved district profiles without refitting or normalizing them."""
     _validate_profiles(clusters, metadata)
     categories = metadata["complaint_categories"]
+    residential_label = categories["complaint_share_1"].replace(
+        "Noise - Residential", "Residential noise"
+    )
     district_values = pd.to_numeric(clusters.boro_cd).astype(float)
     district_low, district_high = district_values.min(), district_values.max()
     dimensions = [
@@ -88,24 +91,28 @@ def create_visualization(
             "tickformat": "d",
         },
         _dimension(clusters.request_count, "Requests"),
-        _dimension(clusters.median_closure_hours, "Median closure<br>(hours)"),
-        _dimension(clusters.long_closure_rate, "Beyond 7 days<br>(%)", percent=True),
+        _dimension(clusters.median_closure_hours, "Median closure (h)"),
+        _dimension(clusters.long_closure_rate, "Over 7 days (%)", percent=True),
         _dimension(
             clusters.complaint_share_0,
-            f"{categories['complaint_share_0']}<br>(%)",
+            f"{categories['complaint_share_0']} (%)",
             percent=True,
         ),
         _dimension(
             clusters.complaint_share_1,
-            f"{categories['complaint_share_1']}<br>(%)",
+            f"{residential_label} (%)",
             percent=True,
         ),
         _dimension(
             clusters.complaint_share_2,
-            f"{categories['complaint_share_2']}<br>(%)",
+            f"{categories['complaint_share_2']} (%)",
             percent=True,
         ),
-        _dimension(clusters.complaint_share_other, "Other complaints<br>(%)", percent=True),
+        _dimension(
+            clusters.complaint_share_other,
+            "Other complaints (%)",
+            percent=True,
+        ),
     ]
     colorscale = [
         [0.0, CLUSTER_COLORS[0]],
@@ -127,28 +134,28 @@ def create_visualization(
                     "ticktext": ["Cluster 0", "Cluster 1"],
                     "len": 0.38,
                     "thickness": 18,
-                    "x": 0.96,
+                    "x": 0.94,
                     "xanchor": "left",
                 },
             },
             dimensions=dimensions,
-            domain={"x": [0, 0.90], "y": [0.10, 0.80]},
-            labelfont={"size": 12, "color": "#243247"},
+            domain={"x": [0, 0.88], "y": [0.10, 0.68]},
+            labelfont={"size": 11, "color": "#243247"},
             tickfont={"size": 10, "color": "#475569"},
             rangefont={"size": 10, "color": "#475569"},
         )
     )
-    scope = f"{subtitle} · " if subtitle else ""
+    scope = f"<br><sup>{subtitle}</sup>" if subtitle else ""
     fig.update_layout(
         title=(
             "Community district profile comparison · precomputed 2025 K-Means model"
-            f"<br><sup>{scope}59 districts · drag an axis to brush; "
+            f"{scope}<br><sup>59 districts · drag an axis to brush; "
             "double-click to clear</sup>"
         ),
         template="plotly_white",
-        height=800,
+        height=850,
         font={"family": "Arial, sans-serif", "size": 14, "color": "#243247"},
-        margin={"l": 65, "r": 100, "t": 105, "b": 70},
+        margin={"l": 65, "r": 120, "t": 190, "b": 70},
         annotations=[
             {
                 "text": (
