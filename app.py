@@ -10,6 +10,7 @@ from pipeline.filters import FilterSpec
 from pipeline.loader import data_path
 from pipeline.query import ParquetQuery
 from visualizations.member1 import render_member1
+from visualizations.member2 import render_member2
 from visualizations.member3 import render_member3_bipartite, render_member3_models
 
 PREVIEW_COLUMNS = (
@@ -152,6 +153,12 @@ def main() -> None:
             filters,
             is_full=provenance["mode"] == "full",
             fingerprint=fingerprint,
+        )
+        render_member2(
+            path,
+            filters,
+            fingerprint=fingerprint,
+            is_full=provenance["mode"] == "full",
         )
         if provenance["mode"] == "full":
             render_member3_bipartite(path, filters, fingerprint=fingerprint)
